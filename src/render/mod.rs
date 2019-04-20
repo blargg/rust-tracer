@@ -1,3 +1,4 @@
 
+pub mod ray;
 pub mod renderable;
-mod ray;
+pub mod sphere;
