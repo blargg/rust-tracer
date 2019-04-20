@@ -1,0 +1,8 @@
+[package]
+name = "rust-tracer"
+version = "0.1.0"
+authors = ["blargg <tomjankauski@gmail.com>"]
+edition = "2018"
+
+[dependencies]
+cgmath = "^0.17.0"
