@@ -1,6 +1,6 @@
 extern crate cgmath;
 
-use cgmath::{Vector3, BaseFloat, InnerSpace};
+use cgmath::{dot, Vector3, BaseFloat, InnerSpace};
 
 #[derive(Debug)]
 pub struct Ray<T> {
@@ -15,10 +15,11 @@ impl<T> Ray<T> {
 }
 
 impl<T: BaseFloat> Ray<T> {
-    // TODO, returns points behind the ray
     pub fn closest_point(&self, p: Vector3<T>) -> Vector3<T> {
         let p_trans = p - self.origin;
-        p_trans.project_on(self.direction) + self.origin
+        let mag: T = dot(self.direction, p_trans) / self.direction.magnitude2();
+        let mag: T = mag.max(T::zero());
+        self.origin + (self.direction * mag)
     }
 }
 
@@ -45,7 +46,7 @@ pub mod tests {
 
     proptest! {
         #[test]
-        fn closestOrig(point in st_vec3(-1000f64..1000f64)) {
+        fn closest_origin(point in st_vec3(-1000f64..1000f64)) {
             let v0 = vec3(0.0, 0.0, 0.0);
             let r: Ray<f64> = Ray::new(v0, point);
             let closest = r.closest_point(point);
@@ -54,13 +55,23 @@ pub mod tests {
         }
 
         #[test]
-        fn closestOnLine(orig in st_vec3(-1000f64..1000f64),
-                         point in st_vec3(-1000f64..1000f64),
-                         scale in -100f64..100f64) {
+        fn closest_in_front(orig in st_vec3(-1000f64..1000f64),
+                            point in st_vec3(-1000f64..1000f64),
+                            scale in 0f64..100f64) {
             // point lies on the line that contains r: Ray
             let r: Ray<f64> = Ray::new(orig, (point - orig) * scale);
             let closest = r.closest_point(point);
             prop_assert!((point - closest).magnitude() < DELTA);
+        }
+
+        #[test]
+        fn closest_behind(orig in st_vec3(-1000f64..1000f64),
+                          point in st_vec3(-1000f64..1000f64),
+                          scale in -1000f64..0f64) {
+            // closest point must be at the start of the ray
+            let r: Ray<f64> = Ray::new(orig, (point - orig) * scale);
+            let closest = r.closest_point(point);
+            prop_assert!((r.origin - closest).magnitude() < DELTA);
         }
     }
 }
