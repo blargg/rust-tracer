@@ -28,19 +28,29 @@ impl<T: Zero + PartialOrd> Sphere<T> {
 impl<N: BaseFloat> Renderable for Sphere<N> {
     type NumTy = N;
 
-    fn intersection(&self, ray: &ray::Ray<N>) -> bool {
+    fn intersection(&self, ray: &ray::Ray<N>) -> Option<N> {
         let ray_offset = ray.origin - self.center;
         let a: N = ray.direction.magnitude2();
         let b: N = double(dot(ray_offset, ray.direction));
         let c: N = dot(ray_offset, ray_offset) - self.radius.powi(2);
         let discriminant = (b * b) - double(double(a * c));
         if discriminant < N::zero() {
-            return false;
+            return None;
         }
         else {
-            return (-b + discriminant.sqrt()) > N::zero();
-            // return (-b - discriminant.sqrt()) / (2.0 * a);
-            // return (-b + discriminant.sqrt()) / (2.0 * a);
+            let disc_sq = discriminant.sqrt();
+            let numerator = -b - disc_sq;
+            if numerator > N::zero() {
+                return Some(numerator / double(a));
+            }
+
+            let numerator = -b + disc_sq;
+            if numerator > N::zero() {
+                return Some(numerator / double(a));
+            }
+            else {
+                return None;
+            }
         }
     }
 }
@@ -52,7 +62,7 @@ fn double<N: BaseFloat>(n: N) -> N {
 #[cfg(test)]
 mod tests {
     use proptest::prelude::*;
-    use cgmath::{vec3, InnerSpace};
+    use cgmath::{vec3, InnerSpace, abs_diff_eq};
 
     use super::*;
     use super::ray::Ray;
@@ -75,8 +85,8 @@ mod tests {
 
         let r2: Ray<f32> = Ray::new(vec3(100.0, 0.0, 0.0), vec3(1.0, 0.0, 0.0));
 
-        assert!(s.intersection(&r));
-        assert!(!s.intersection(&r2));
+        assert!(s.intersection(&r).is_some());
+        assert!(s.intersection(&r2).is_none());
     }
 
     proptest! {
@@ -84,11 +94,23 @@ mod tests {
         fn intersection_detection(r in arb_ray(-100f32..100f32, -100f32..100f32),
                                   s in arb_sphere(-100f32..100f32, 0f32..100f32)) {
             prop_assume!(r.direction.magnitude() > DELTA);
-            let intersects = s.intersection(&r);
+            let intersects = s.intersection(&r).is_some();
             let closest = r.closest_point(s.center);
             let actual = (closest - s.center).magnitude() < s.radius + DELTA;
 
             prop_assert_eq!(intersects, actual);
+        }
+
+        #[test]
+        fn intersection_on_surface(r in arb_ray(-100f32..100f32, -100f32..100f32),
+                                   s in arb_sphere(-100f32..100f32, 0f32..100f32)) {
+            prop_assume!(r.direction.magnitude() > DELTA);
+            let intersection = s.intersection(&r).map(|t| r.at_time(t));
+
+            match intersection {
+                Some(point) => prop_assert!(abs_diff_eq!((point - s.center).magnitude(), s.radius, epsilon = DELTA)),
+                None => (),
+            }
         }
     }
 }

@@ -21,6 +21,11 @@ impl<T: BaseFloat> Ray<T> {
         let mag: T = mag.max(T::zero());
         self.origin + (self.direction * mag)
     }
+
+    // returns the point in the ray traveling time * the direction vector from the orign
+    pub fn at_time(&self, time: T) -> Vector3<T> {
+        self.origin + self.direction * time
+    }
 }
 
 #[cfg(test)]

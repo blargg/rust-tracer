@@ -34,7 +34,7 @@ fn generate_ray(x: u32, y: u32) -> Ray<f32> {
 fn render_ray(ray: Ray<f32>, scene: &Scene<f32>) -> Rgb<u8> {
     let objs: &Vec<_> = scene.objects.borrow();
     for sphere in objs {
-        if sphere.intersection(&ray) {
+        if sphere.intersection(&ray).is_some() {
             return Rgb::from_channels(255u8, 0, 0, 255);
         }
     }
