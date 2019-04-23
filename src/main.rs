@@ -3,7 +3,6 @@ extern crate image;
 
 mod render;
 
-use image::{ImageBuffer, Rgb, Pixel};
 use render::renderer::*;
 
 fn main() {

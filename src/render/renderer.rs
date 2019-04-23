@@ -1,12 +1,11 @@
 extern crate cgmath;
 extern crate image;
 
-use cgmath::{dot, vec3, Vector3, BaseFloat, InnerSpace};
+use cgmath::{vec3};
 use super::sphere::Sphere;
 use super::renderable::Renderable;
 use super::ray::Ray;
 use image::{ImageBuffer, Rgb, Pixel};
-use std::iter::IntoIterator;
 use std::borrow::Borrow;
 
 pub struct Scene<T> {
@@ -22,8 +21,8 @@ pub fn render() -> ImageBuffer<Rgb<u8>, Vec<u8>> {
     let s = Sphere::new(vec3(50.0f32, 50.0, 100.0), 25.0f32);
     let sc = Scene {objects: vec![s]};
 
-    ImageBuffer::from_fn(100, 100,
-                                   |x, y| render_ray(generate_ray(x,y), &sc))
+    ImageBuffer::from_fn(img_height, img_width,
+                         |x, y| render_ray(generate_ray(x,y), &sc))
 }
 
 fn generate_ray(x: u32, y: u32) -> Ray<f32> {
