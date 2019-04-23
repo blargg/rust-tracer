@@ -1,7 +1,7 @@
 extern crate num;
 
 use std::cmp::PartialOrd;
-use cgmath::{Vector3, dot};
+use cgmath::{Vector3, dot, BaseFloat, InnerSpace};
 use super::ray;
 use super::renderable::*;
 use num::Zero;
@@ -25,22 +25,28 @@ impl<T: Zero + PartialOrd> Sphere<T> {
     }
 }
 
-impl Renderable for Sphere<f32> {
-    fn intersection(&self, ray: &ray::Ray<f32>) -> bool {
+impl<N: BaseFloat> Renderable for Sphere<N> {
+    type NumTy = N;
+
+    fn intersection(&self, ray: &ray::Ray<N>) -> bool {
         let ray_offset = ray.origin - self.center;
-        let a: f32 = dot(ray.direction, ray.direction); // TODO test with magnitude2
-        let b = 2.0 * dot(ray_offset, ray.direction);
-        let c = dot(ray_offset, ray_offset) - self.radius.powi(2);
-        let discriminant = (b * b) - (4.0 * a * c);
-        if discriminant < 0.0 {
+        let a: N = ray.direction.magnitude2();
+        let b: N = double(dot(ray_offset, ray.direction));
+        let c: N = dot(ray_offset, ray_offset) - self.radius.powi(2);
+        let discriminant = (b * b) - double(double(a * c));
+        if discriminant < N::zero() {
             return false;
         }
         else {
-            return (-b + discriminant.sqrt()) > 0.0;
+            return (-b + discriminant.sqrt()) > N::zero();
             // return (-b - discriminant.sqrt()) / (2.0 * a);
             // return (-b + discriminant.sqrt()) / (2.0 * a);
         }
     }
+}
+
+fn double<N: BaseFloat>(n: N) -> N {
+    n + n
 }
 
 #[cfg(test)]
