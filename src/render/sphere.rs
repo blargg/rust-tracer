@@ -1,6 +1,6 @@
 extern crate num;
 
-use std::cmp::Ord;
+use std::cmp::PartialOrd;
 use cgmath::{Vector3, dot};
 use super::ray;
 use super::renderable::*;
@@ -12,9 +12,15 @@ pub struct Sphere<T> {
     radius: T,
 }
 
-impl<T: Zero + Ord> Sphere<T> {
+impl<T: Zero + PartialOrd> Sphere<T> {
     pub fn new(center: Vector3<T>, radius: T) -> Sphere<T>{
-        let r = T::zero().max(radius);
+        let r: T;
+        if T::zero().lt(&radius) {
+            r = radius;
+        }
+        else {
+            r = T::zero();
+        }
         Sphere{center: center, radius: r}
     }
 }
