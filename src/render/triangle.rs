@@ -1,6 +1,6 @@
-use cgmath::{Vector3, InnerSpace, BaseFloat};
 use super::ray;
 use super::renderable::*;
+use cgmath::{BaseFloat, InnerSpace, Vector3};
 
 #[derive(Debug)]
 pub struct Triangle<T> {
@@ -11,9 +11,12 @@ pub struct Triangle<T> {
 
 impl<T> Triangle<T> {
     const fn new(vertex1: Vector3<T>, vertex2: Vector3<T>, vertex3: Vector3<T>) -> Triangle<T> {
-        Triangle{v1: vertex1, v2: vertex2, v3: vertex3}
+        Triangle {
+            v1: vertex1,
+            v2: vertex2,
+            v3: vertex3,
+        }
     }
-
 }
 
 impl<T: BaseFloat> Triangle<T> {
@@ -34,7 +37,8 @@ impl Renderable for Triangle<f64> {
         let s1 = ray.direction.cross(e2);
         let divisor = s1.dot(e1);
         println!("divisor = {}", divisor);
-        if divisor.abs() < 0.000001 { // TODO can we use a better epsilon?
+        // TODO can we use a better epsilon?
+        if divisor.abs() < 0.000001 {
             return None;
         }
 
@@ -59,26 +63,24 @@ impl Renderable for Triangle<f64> {
         println!("t = {}", t);
         if t < 0.0 {
             return None;
-        }
-        else {
+        } else {
             return Some(t);
         }
     }
 }
 
-
 #[cfg(test)]
 mod tests {
-    use proptest::prelude::*;
-    use super::*;
-    use super::ray::tests::{st_vec3, arb_ray};
+    use super::ray::tests::{arb_ray, st_vec3};
     use super::ray::*;
+    use super::*;
+    use proptest::prelude::*;
 
     use cgmath::vec3;
 
-    pub fn arb_tri<T>(s: impl Strategy<Value = T> + Clone)
-        -> impl Strategy<Value = Triangle<T>>
-        where T: Arbitrary
+    pub fn arb_tri<T>(s: impl Strategy<Value = T> + Clone) -> impl Strategy<Value = Triangle<T>>
+    where
+        T: Arbitrary,
     {
         (st_vec3(s.clone()), st_vec3(s.clone()), st_vec3(s.clone()))
             .prop_map(|(v1, v2, v3)| Triangle::new(v1, v2, v3))
@@ -89,10 +91,9 @@ mod tests {
         let tri: Triangle<f64> = Triangle::new(
             vec3(0.0, -1.0, 1.0),
             vec3(0.0, -1.0, -1.0),
-            vec3(0.0, 1.0, 0.0));
-        let ray: Ray<f64> = Ray::new(
-            vec3(-1.0, 0.0, 0.0),
-            vec3(1.0, 0.0, 0.0));
+            vec3(0.0, 1.0, 0.0),
+        );
+        let ray: Ray<f64> = Ray::new(vec3(-1.0, 0.0, 0.0), vec3(1.0, 0.0, 0.0));
 
         let intersection = tri.intersection(&ray);
         match intersection {

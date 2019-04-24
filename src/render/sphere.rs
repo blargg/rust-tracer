@@ -1,10 +1,10 @@
 extern crate num;
 
-use std::cmp::PartialOrd;
-use cgmath::{Vector3, dot, BaseFloat, InnerSpace};
 use super::ray;
 use super::renderable::*;
+use cgmath::{dot, BaseFloat, InnerSpace, Vector3};
 use num::Zero;
+use std::cmp::PartialOrd;
 
 #[derive(Debug)]
 pub struct Sphere<T> {
@@ -13,15 +13,17 @@ pub struct Sphere<T> {
 }
 
 impl<T: Zero + PartialOrd> Sphere<T> {
-    pub fn new(center: Vector3<T>, radius: T) -> Sphere<T>{
+    pub fn new(center: Vector3<T>, radius: T) -> Sphere<T> {
         let r: T;
         if T::zero().lt(&radius) {
             r = radius;
-        }
-        else {
+        } else {
             r = T::zero();
         }
-        Sphere{center: center, radius: r}
+        Sphere {
+            center: center,
+            radius: r,
+        }
     }
 }
 
@@ -36,8 +38,7 @@ impl<N: BaseFloat> Renderable for Sphere<N> {
         let discriminant = (b * b) - double(double(a * c));
         if discriminant < N::zero() {
             return None;
-        }
-        else {
+        } else {
             let disc_sq = discriminant.sqrt();
             let numerator = -b - disc_sq;
             if numerator > N::zero() {
@@ -47,8 +48,7 @@ impl<N: BaseFloat> Renderable for Sphere<N> {
             let numerator = -b + disc_sq;
             if numerator > N::zero() {
                 return Some(numerator / double(a));
-            }
-            else {
+            } else {
                 return None;
             }
         }
@@ -61,27 +61,38 @@ fn double<N: BaseFloat>(n: N) -> N {
 
 #[cfg(test)]
 mod tests {
+    use cgmath::{abs_diff_eq, vec3, InnerSpace};
     use proptest::prelude::*;
-    use cgmath::{vec3, InnerSpace, abs_diff_eq};
 
-    use super::*;
+    use super::ray::tests::{arb_ray, st_vec3};
     use super::ray::Ray;
-    use super::ray::tests::{st_vec3, arb_ray};
+    use super::*;
 
     const DELTA: f32 = 0.001;
 
-    pub fn arb_sphere<T>(c: impl Strategy<Value = T> + Clone,
-                         r: impl Strategy<Value = T> + Clone)
-        -> impl Strategy<Value = Sphere<T>>
-        where T: Arbitrary
+    pub fn arb_sphere<T>(
+        c: impl Strategy<Value = T> + Clone,
+        r: impl Strategy<Value = T> + Clone,
+    ) -> impl Strategy<Value = Sphere<T>>
+    where
+        T: Arbitrary,
     {
-        (st_vec3(c.clone()), r.clone()).prop_map(|(cnt, rad)| Sphere{center: cnt, radius: rad})
+        (st_vec3(c.clone()), r.clone()).prop_map(|(cnt, rad)| Sphere {
+            center: cnt,
+            radius: rad,
+        })
     }
 
     #[test]
     fn intersection_test() {
-        let s: Sphere<f32> = Sphere{center: vec3(0.0, 0.0 ,0.0), radius: 5.0};;
-        let r: Ray<f32> = Ray{origin: vec3(0.0,0.0,0.0), direction: vec3(1.0,0.0,0.0)};
+        let s: Sphere<f32> = Sphere {
+            center: vec3(0.0, 0.0, 0.0),
+            radius: 5.0,
+        };;
+        let r: Ray<f32> = Ray {
+            origin: vec3(0.0, 0.0, 0.0),
+            direction: vec3(1.0, 0.0, 0.0),
+        };
 
         let r2: Ray<f32> = Ray::new(vec3(100.0, 0.0, 0.0), vec3(1.0, 0.0, 0.0));
 

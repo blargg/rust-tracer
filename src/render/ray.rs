@@ -1,6 +1,6 @@
 extern crate cgmath;
 
-use cgmath::{dot, Vector3, BaseFloat, InnerSpace};
+use cgmath::{dot, BaseFloat, InnerSpace, Vector3};
 
 #[derive(Debug)]
 pub struct Ray<T> {
@@ -10,7 +10,10 @@ pub struct Ray<T> {
 
 impl<T> Ray<T> {
     pub const fn new(orig: Vector3<T>, dir: Vector3<T>) -> Ray<T> {
-        Ray { origin: orig, direction: dir }
+        Ray {
+            origin: orig,
+            direction: dir,
+        }
     }
 }
 
@@ -30,21 +33,25 @@ impl<T: BaseFloat> Ray<T> {
 
 #[cfg(test)]
 pub mod tests {
-    use proptest::prelude::*;
-    use cgmath::vec3;
     use super::*;
+    use cgmath::vec3;
+    use proptest::prelude::*;
 
     const DELTA: f64 = 0.00001;
 
-    pub fn st_vec3<T>(s: impl Strategy<Value=T> + Clone) -> impl Strategy<Value = Vector3<T>>
-        where T: Arbitrary
+    pub fn st_vec3<T>(s: impl Strategy<Value = T> + Clone) -> impl Strategy<Value = Vector3<T>>
+    where
+        T: Arbitrary,
     {
         (s.clone(), s.clone(), s.clone()).prop_map(|(x, y, z)| vec3(x, y, z))
     }
 
-    pub fn arb_ray<T>(orig_st: impl Strategy<Value=T> + Clone, dir_st: impl Strategy<Value=T> + Clone)
-                     -> impl Strategy<Value = Ray<T>>
-        where T: Arbitrary
+    pub fn arb_ray<T>(
+        orig_st: impl Strategy<Value = T> + Clone,
+        dir_st: impl Strategy<Value = T> + Clone,
+    ) -> impl Strategy<Value = Ray<T>>
+    where
+        T: Arbitrary,
     {
         (st_vec3(orig_st), st_vec3(dir_st)).prop_map(|(o, d)| Ray::new(o, d))
     }
