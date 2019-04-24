@@ -1,5 +1,6 @@
 
 pub mod ray;
 pub mod renderable;
-pub mod sphere;
 pub mod renderer;
+pub mod sphere;
+pub mod triangle;
