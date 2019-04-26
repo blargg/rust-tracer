@@ -10,7 +10,7 @@ pub struct Triangle<T> {
 }
 
 impl<T> Triangle<T> {
-    const fn new(vertex1: Vector3<T>, vertex2: Vector3<T>, vertex3: Vector3<T>) -> Triangle<T> {
+    pub const fn new(vertex1: Vector3<T>, vertex2: Vector3<T>, vertex3: Vector3<T>) -> Triangle<T> {
         Triangle {
             v1: vertex1,
             v2: vertex2,
