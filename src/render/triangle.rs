@@ -36,7 +36,6 @@ impl Renderable for Triangle<f64> {
         let e2: Vector3<f64> = self.v3 - self.v1;
         let s1 = ray.direction.cross(e2);
         let divisor = s1.dot(e1);
-        println!("divisor = {}", divisor);
         // TODO can we use a better epsilon?
         if divisor.abs() < 0.000001 {
             return None;
@@ -46,7 +45,6 @@ impl Renderable for Triangle<f64> {
         let s: Vector3<f64> = ray.origin - self.v1;
         // b1 of the barycentric coordinates
         let b1: f64 = s1.dot(s) * inv_div;
-        println!("b1 = {}", b1);
 
         if b1 < 0.0 || b1 > 1.0 {
             return None; // lies outside of the triangle
@@ -54,13 +52,11 @@ impl Renderable for Triangle<f64> {
 
         let s2 = s.cross(e1);
         let b2 = ray.direction.dot(s2) * inv_div;
-        println!("b2 = {}", b2);
         if b2 < 0.0 || b1 + b2 > 1.0 {
             return None;
         }
 
         let t = e2.dot(s2) * inv_div;
-        println!("t = {}", t);
         if t < 0.0 {
             return None;
         } else {
