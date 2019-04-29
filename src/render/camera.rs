@@ -4,7 +4,7 @@ use super::ray::Ray;
 use cgmath::*;
 
 #[derive(Debug)]
-struct Camera<T> {
+pub struct Camera<T> {
     // position of the camera
     position: Vector3<T>,
     // (where it is looking at)
@@ -15,7 +15,7 @@ struct Camera<T> {
 }
 
 impl<T> Camera<T> {
-    fn new(
+    pub fn new(
         position: Vector3<T>,
         orientation: Basis3<T>,
         width: T,
@@ -33,7 +33,7 @@ impl<T> Camera<T> {
 }
 
 impl<T: BaseFloat> Camera<T> {
-    fn look_at(
+    pub fn look_at(
         position: Vector3<T>,
         at_point: Vector3<T>,
         up: Vector3<T>,
@@ -42,7 +42,7 @@ impl<T: BaseFloat> Camera<T> {
         fov: Rad<T>,
     ) -> Camera<T> {
         let view_direction = at_point - position;
-        let orientation = Basis3::look_at(view_direction, up);
+        let orientation = Basis3::look_at(view_direction, up).invert();
         Camera::new(position, orientation, width, height, fov)
     }
 }
@@ -51,7 +51,7 @@ impl<T: BaseFloat> Camera<T> {
 impl Camera<f64> {
     // returns a ray at the given coordinates on the camera
     // x and y: [0, 1] are percents of the way across the camera
-    fn ray_at(&self, x: f64, y: f64) -> Ray<f64> {
+    pub fn ray_at(&self, x: f64, y: f64) -> Ray<f64> {
         // point on the unit screen at
         // calculate the focal point behind the sceen
         // draw a ray at the screen with the angle
@@ -124,6 +124,18 @@ mod tests {
     }
 
     proptest! {
+        #[test]
+        fn looks_at_point(position in st_vec3(-100.0f64..100.0),
+                          target in st_vec3(-100.0f64..100.0)) {
+            prop_assume!((position - target).magnitude2() > 0.0001);
+            let cam = Camera::look_at(position, target, Vector3::unit_y(), 1.0, 1.0, Rad(PI/2.0));
+            let center_ray = cam.ray_at(0.5, 0.5);
+            let closest = center_ray.closest_point(target);
+            println!("cam = {:?}", cam);
+            println!("ray = {:?}", center_ray);
+            prop_assert!((closest - target).magnitude() < 0.0001);
+        }
+
         #[test]
         fn ray_origin_on_view_plane(cam in arb_camera(),
                                     x in 0.0f64..1.0,
