@@ -1,5 +1,4 @@
-
-use cgmath::{BaseFloat, Vector3, InnerSpace};
+use cgmath::{BaseFloat, InnerSpace, Vector3};
 
 pub struct Plane<T> {
     normal: Vector3<T>,
@@ -8,7 +7,10 @@ pub struct Plane<T> {
 
 impl<T> Plane<T> {
     pub const fn new(normal: Vector3<T>, dist: T) -> Plane<T> {
-        Plane{normal: normal, dist: dist}
+        Plane {
+            normal: normal,
+            dist: dist,
+        }
     }
 }
 
@@ -22,7 +24,6 @@ impl<T: BaseFloat> Plane<T> {
         (self.normal * t).magnitude()
     }
 }
-
 
 #[cfg(test)]
 mod tests {

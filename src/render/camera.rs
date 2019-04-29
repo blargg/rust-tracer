@@ -1,7 +1,7 @@
 extern crate cgmath;
 
-use cgmath::*;
 use super::ray::Ray;
+use cgmath::*;
 
 #[derive(Debug)]
 struct Camera<T> {
@@ -15,13 +15,32 @@ struct Camera<T> {
 }
 
 impl<T> Camera<T> {
-    fn new(position: Vector3<T>, orientation: Basis3<T>, width: T, height: T, fov: Rad<T>) -> Camera<T> {
-        Camera{position: position, orientation: orientation, width: width, height: height, fov: fov}
+    fn new(
+        position: Vector3<T>,
+        orientation: Basis3<T>,
+        width: T,
+        height: T,
+        fov: Rad<T>,
+    ) -> Camera<T> {
+        Camera {
+            position: position,
+            orientation: orientation,
+            width: width,
+            height: height,
+            fov: fov,
+        }
     }
 }
 
 impl<T: BaseFloat> Camera<T> {
-    fn look_at(position: Vector3<T>, at_point: Vector3<T>, up: Vector3<T>, width: T, height: T, fov: Rad<T>) -> Camera<T> {
+    fn look_at(
+        position: Vector3<T>,
+        at_point: Vector3<T>,
+        up: Vector3<T>,
+        width: T,
+        height: T,
+        fov: Rad<T>,
+    ) -> Camera<T> {
         let view_direction = at_point - position;
         let orientation = Basis3::look_at(view_direction, up);
         Camera::new(position, orientation, width, height, fov)
@@ -37,13 +56,18 @@ impl Camera<f64> {
         // calculate the focal point behind the sceen
         // draw a ray at the screen with the angle
         // orient and translate the ray
-        let off_set: Vector3<f64> = self.orientation.rotate_vector(vec3((x - 0.5) * self.width, (y - 0.5) * self.height, 0.0));
+        let off_set: Vector3<f64> = self.orientation.rotate_vector(vec3(
+            (x - 0.5) * self.width,
+            (y - 0.5) * self.height,
+            0.0,
+        ));
         let point = off_set + self.position;
 
         // focal_point lies behind the camera plane, used to determine the ray direction.
         let half_fov = self.fov / 2.0;
         let focal_distance = self.width / (2.0 * half_fov.tan());
-        let focal_point = self.orientation.rotate_vector(vec3(0.0, 0.0, -1.0)) * focal_distance + self.position;
+        let focal_point =
+            self.orientation.rotate_vector(vec3(0.0, 0.0, -1.0)) * focal_distance + self.position;
         Ray::new(point, point - focal_point)
     }
 }
@@ -51,19 +75,25 @@ impl Camera<f64> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::render::plane::*;
+    use crate::render::ray::tests::{arb_ray, st_vec3};
     use proptest::prelude::*;
     use std::f64::consts::PI;
-    use crate::render::ray::tests::{arb_ray, st_vec3};
-    use crate::render::plane::*;
 
     #[test]
     fn center_point_at_position() {
         let position = vec3(0.0, 0.0, 0.0);
-        let cam: Camera<f64> = Camera::look_at(position, vec3(0.0, 0.0, 1.0), vec3(0.0, 1.0, 0.0), 1.0, 1.0, Rad(std::f64::consts::PI / 2.0));
+        let cam: Camera<f64> = Camera::look_at(
+            position,
+            vec3(0.0, 0.0, 1.0),
+            vec3(0.0, 1.0, 0.0),
+            1.0,
+            1.0,
+            Rad(std::f64::consts::PI / 2.0),
+        );
         let mid_ray = cam.ray_at(0.5, 0.5);
 
         assert!(abs_diff_eq!(mid_ray.origin, position));
-
     }
 
     prop_compose! {
@@ -81,7 +111,7 @@ mod tests {
         }
     }
 
-    prop_compose!{
+    prop_compose! {
 
         fn arb_camera()
             (pos in st_vec3(-100.0f64..100.0f64),

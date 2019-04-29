@@ -6,8 +6,8 @@ use super::ray::Ray;
 use super::renderable::Renderable;
 use super::triangle::Triangle;
 use cgmath::{vec3, Vector3};
-use obj::{Obj, SimplePolygon, IndexTuple};
 use image::{ImageBuffer, Pixel, Rgb};
+use obj::{IndexTuple, Obj, SimplePolygon};
 use std::borrow::Borrow;
 use std::path::Path;
 
@@ -28,23 +28,27 @@ fn get_point(obj: &Obj<SimplePolygon>, point_index: IndexTuple) -> Vector3<f64> 
     vec3(point[0] as f64, point[1] as f64, point[2] as f64)
 }
 
-fn to_triangle(obj: &Obj<SimplePolygon>, poly: &SimplePolygon) -> Result<Triangle<f64>, SceneLoadError> {
+fn to_triangle(
+    obj: &Obj<SimplePolygon>,
+    poly: &SimplePolygon,
+) -> Result<Triangle<f64>, SceneLoadError> {
     if poly.len() != 3 {
         return Err(SceneLoadError::SceneContainsGeneralPolyError);
     }
-    Ok(Triangle::new(get_point(obj, poly[0]),
-                     get_point(obj, poly[1]),
-                     get_point(obj, poly[2])))
+    Ok(Triangle::new(
+        get_point(obj, poly[0]),
+        get_point(obj, poly[1]),
+        get_point(obj, poly[2]),
+    ))
 }
 
 impl<T> Scene<T> {
     pub fn empty() -> Scene<T> {
-        Scene { objects: vec!() }
+        Scene { objects: vec![] }
     }
 }
 
 impl Scene<f64> {
-
     pub fn load(path: &Path) -> Result<Scene<f64>, SceneLoadError> {
         let obj: Obj<SimplePolygon> = Obj::load(path).map_err(|_| SceneLoadError::LoadObjError)?;
         let mut scene: Scene<f64> = Scene::empty();
