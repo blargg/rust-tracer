@@ -2,6 +2,7 @@ extern crate cgmath;
 extern crate image;
 extern crate obj;
 
+use super::camera::Camera;
 use super::ray::Ray;
 use super::renderable::Renderable;
 use super::triangle::Triangle;
@@ -68,14 +69,15 @@ impl Scene<f64> {
     }
 }
 
-pub fn render(scene: &Scene<f64>) -> ImageBuffer<Rgb<u8>, Vec<u8>> {
+pub fn render(cam: Camera<f64>, scene: &Scene<f64>) -> ImageBuffer<Rgb<u8>, Vec<u8>> {
     let img_height = 100;
     let img_width = 100;
-    let scene_height = 100.0;
-    let scene_width = 100.0;
 
     ImageBuffer::from_fn(img_height, img_width, |x, y| {
-        render_ray(generate_ray(x, y), &scene)
+        render_ray(
+            cam.ray_at(x as f64 / img_width as f64, y as f64 / img_height as f64),
+            &scene,
+        )
     })
 }
 
