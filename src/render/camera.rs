@@ -85,20 +85,11 @@ mod tests {
 
         fn arb_camera()
             (pos in st_vec3(-100.0f64..100.0f64),
-             lookat_point in st_vec3(-100.0f64..100.0),
+             orientation in arb_basis3(),
              width in 1.0f64..100.0,
              height in 1.0f64..100.0) -> Camera<f64>
         {
-            let lookat_dir = lookat_point - pos;
-            println!("lookat_point = {:?}", lookat_point);
-            println!("pos = {:?}", pos);
-            println!("lookat_dir = {:?}", lookat_dir);
-            let up_vec: Vector3<f64> = if lookat_dir.angle(Vector3::unit_y()) < Rad(0.01) {
-                Vector3::unit_z()
-            } else {
-                Vector3::unit_y()
-            };
-            Camera::look_at(pos, lookat_point, up_vec, width, height, Rad(PI / 2.0))
+            Camera::new(pos, orientation, width, height, Rad(PI / 2.0))
         }
     }
 
@@ -123,13 +114,34 @@ mod tests {
         }
 
         #[test]
-        fn horizontal_view_angle_is_fov(cam in arb_camera(),
-                                        y in 0.0f64..1.0f64) {
+        fn camera_width(cam in arb_camera(),
+                        y in 0.0f64..1.0f64) {
             let left_most = cam.ray_at(0.0, y);
             let right_most = cam.ray_at(1.0, y);
+            let calc_width_sq = (left_most.origin - right_most.origin).magnitude2();
+            let actual_width_sq = cam.width.powi(2);
+            prop_assert!(abs_diff_eq!(calc_width_sq, actual_width_sq, epsilon=0.00001),
+            "calculated = {}, actual = {}", calc_width_sq, actual_width_sq);
+        }
+
+        #[test]
+        fn camera_height(cam in arb_camera(),
+                         x in 0.0f64..1.0f64) {
+            let top_most = cam.ray_at(x, 1.0);
+            let bottom_most = cam.ray_at(x, 0.0);
+            prop_assert!(abs_diff_eq!(
+                    (top_most.origin - bottom_most.origin).magnitude2(),
+                    cam.height.powi(2),
+                    epsilon=0.000001));
+        }
+
+        #[test]
+        fn horizontal_view_angle_is_fov(cam in arb_camera()) {
+            let left_most = cam.ray_at(0.0, 0.5);
+            let right_most = cam.ray_at(1.0, 0.5);
 
             let theta = left_most.direction.angle(right_most.direction);
-            prop_assert!(abs_diff_eq!(theta, cam.fov))
+            prop_assert!(abs_diff_eq!(theta, cam.fov, epsilon=0.00001), "theta = {:?}", theta);
         }
     }
 }
