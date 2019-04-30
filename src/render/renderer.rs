@@ -26,7 +26,7 @@ fn get_point(obj: &Obj<SimplePolygon>, point_index: IndexTuple) -> Vector3<f64> 
     let IndexTuple(pi, _, _) = point_index;
     let point = obj.position[pi];
 
-    vec3(point[0] as f64, point[1] as f64, point[2] as f64)
+    vec3(f64::from(point[0]), f64::from(point[1]), f64::from(point[2]))
 }
 
 fn to_triangle(
@@ -75,16 +75,10 @@ pub fn render(cam: Camera<f64>, scene: &Scene<f64>) -> ImageBuffer<Rgb<u8>, Vec<
 
     ImageBuffer::from_fn(img_height, img_width, |x, y| {
         render_ray(
-            cam.ray_at(x as f64 / img_width as f64, y as f64 / img_height as f64),
+            cam.ray_at(f64::from(x) / f64::from(img_width), f64::from(y) / f64::from(img_height)),
             &scene,
         )
     })
-}
-
-fn generate_ray(x: u32, y: u32) -> Ray<f64> {
-    let origin = vec3(x as f64, y as f64, 0.0);
-    let direction = vec3(0.0, 0.0, 1.0);
-    Ray::new(origin, direction)
 }
 
 fn render_ray(ray: Ray<f64>, scene: &Scene<f64>) -> Rgb<u8> {
@@ -94,5 +88,5 @@ fn render_ray(ray: Ray<f64>, scene: &Scene<f64>) -> Rgb<u8> {
             return Rgb::from_channels(255u8, 0, 0, 255);
         }
     }
-    return Rgb::from_channels(0u8, 0, 0, 255);
+    Rgb::from_channels(0u8, 0, 0, 255)
 }

@@ -15,13 +15,9 @@ pub struct Sphere<T> {
 impl<T: Zero + PartialOrd> Sphere<T> {
     pub fn new(center: Vector3<T>, radius: T) -> Sphere<T> {
         let r: T;
-        if T::zero().lt(&radius) {
-            r = radius;
-        } else {
-            r = T::zero();
-        }
+        if T::zero().lt(&radius) { r = radius; } else { r = T::zero(); }
         Sphere {
-            center: center,
+            center,
             radius: r,
         }
     }
@@ -75,12 +71,9 @@ mod tests {
         r: impl Strategy<Value = T> + Clone,
     ) -> impl Strategy<Value = Sphere<T>>
     where
-        T: Arbitrary,
+        T: Arbitrary + Zero + PartialOrd,
     {
-        (st_vec3(c.clone()), r.clone()).prop_map(|(cnt, rad)| Sphere {
-            center: cnt,
-            radius: rad,
-        })
+        (st_vec3(c.clone()), r.clone()).prop_map(|(cnt, rad)| Sphere::new( cnt, rad,))
     }
 
     #[test]

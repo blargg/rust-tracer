@@ -58,9 +58,9 @@ impl Renderable for Triangle<f64> {
 
         let t = e2.dot(s2) * inv_div;
         if t < 0.0 {
-            return None;
+            None
         } else {
-            return Some(t);
+            Some(t)
         }
     }
 }

@@ -23,11 +23,11 @@ impl<T> Camera<T> {
         fov: Rad<T>,
     ) -> Camera<T> {
         Camera {
-            position: position,
-            orientation: orientation,
-            width: width,
-            height: height,
-            fov: fov,
+            position,
+            orientation,
+            width,
+            height,
+            fov,
         }
     }
 }
@@ -76,7 +76,7 @@ impl Camera<f64> {
 mod tests {
     use super::*;
     use crate::render::plane::*;
-    use crate::render::ray::tests::{arb_ray, st_vec3};
+    use crate::render::ray::tests::st_vec3;
     use proptest::prelude::*;
     use std::f64::consts::PI;
 

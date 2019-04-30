@@ -8,8 +8,8 @@ pub struct Plane<T> {
 impl<T> Plane<T> {
     pub const fn new(normal: Vector3<T>, dist: T) -> Plane<T> {
         Plane {
-            normal: normal,
-            dist: dist,
+            normal,
+            dist,
         }
     }
 }
