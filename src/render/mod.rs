@@ -1,5 +1,6 @@
 pub mod camera;
 mod plane;
+pub mod material;
 pub mod ray;
 pub mod renderable;
 pub mod renderer;
