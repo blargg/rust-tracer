@@ -6,6 +6,7 @@ mod render;
 use cgmath::*;
 use render::camera::*;
 use render::renderer::*;
+use render::scene::*;
 use std::f64::consts::PI;
 use std::path::Path;
 
