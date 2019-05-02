@@ -1,11 +1,15 @@
+use super::material::*;
+use super::renderable::*;
 use super::triangle::Triangle;
 use cgmath::{vec3, Vector3};
 use obj::{IndexTuple, Obj, SimplePolygon};
 use std::borrow::Borrow;
 use std::path::Path;
 
+type MatTri<T> = ShapeMat<Triangle<T>, UniformMaterial<Lambert<T>>>;
+
 pub struct Scene<T> {
-    pub objects: Vec<Triangle<T>>,
+    pub objects: Vec<MatTri<T>>,
 }
 
 #[derive(Debug)]
@@ -18,7 +22,11 @@ fn get_point(obj: &Obj<SimplePolygon>, point_index: IndexTuple) -> Vector3<f64> 
     let IndexTuple(pi, _, _) = point_index;
     let point = obj.position[pi];
 
-    vec3(f64::from(point[0]), f64::from(point[1]), f64::from(point[2]))
+    vec3(
+        f64::from(point[0]),
+        f64::from(point[1]),
+        f64::from(point[2]),
+    )
 }
 
 fn to_triangle(
@@ -53,7 +61,9 @@ impl Scene<f64> {
                 let polys: &Vec<_> = group.polys.borrow();
                 for poly in polys {
                     let tri = to_triangle(&obj, poly)?;
-                    scene.objects.push(tri);
+                    // use a standard color until we can load from the file
+                    let material = UniformMaterial::new(Lambert::new(1.0, 0.0, 0.0));
+                    scene.objects.push(MatTri::new(tri, material));
                 }
             }
         }

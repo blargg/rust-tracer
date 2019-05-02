@@ -1,7 +1,7 @@
 extern crate num;
 
 use super::ray;
-use super::renderable::*;
+use super::shape::*;
 use cgmath::{dot, BaseFloat, InnerSpace, Vector3};
 use num::Zero;
 use std::cmp::PartialOrd;
@@ -15,15 +15,16 @@ pub struct Sphere<T> {
 impl<T: Zero + PartialOrd> Sphere<T> {
     pub fn new(center: Vector3<T>, radius: T) -> Sphere<T> {
         let r: T;
-        if T::zero().lt(&radius) { r = radius; } else { r = T::zero(); }
-        Sphere {
-            center,
-            radius: r,
+        if T::zero().lt(&radius) {
+            r = radius;
+        } else {
+            r = T::zero();
         }
+        Sphere { center, radius: r }
     }
 }
 
-impl<N: BaseFloat> Renderable for Sphere<N> {
+impl<N: BaseFloat> Shape for Sphere<N> {
     type NumTy = N;
 
     fn intersection(&self, ray: &ray::Ray<N>) -> Option<N> {
@@ -73,7 +74,7 @@ mod tests {
     where
         T: Arbitrary + Zero + PartialOrd,
     {
-        (st_vec3(c.clone()), r.clone()).prop_map(|(cnt, rad)| Sphere::new( cnt, rad,))
+        (st_vec3(c.clone()), r.clone()).prop_map(|(cnt, rad)| Sphere::new(cnt, rad))
     }
 
     #[test]

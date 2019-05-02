@@ -1,5 +1,5 @@
 use super::ray;
-use super::renderable::*;
+use super::shape::*;
 use cgmath::{BaseFloat, InnerSpace, Vector3};
 
 #[derive(Debug)]
@@ -29,7 +29,7 @@ impl<T: BaseFloat> Triangle<T> {
     }
 }
 
-impl Renderable for Triangle<f64> {
+impl Shape for Triangle<f64> {
     type NumTy = f64;
     fn intersection(&self, ray: &ray::Ray<f64>) -> Option<f64> {
         let e1: Vector3<f64> = self.v2 - self.v1;

@@ -1,9 +1,11 @@
 pub mod camera;
-mod plane;
+pub mod color;
 pub mod material;
+mod plane;
 pub mod ray;
 pub mod renderable;
 pub mod renderer;
-pub mod sphere;
 pub mod scene;
+pub mod shape;
+pub mod sphere;
 pub mod triangle;
