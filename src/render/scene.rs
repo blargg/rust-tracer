@@ -1,6 +1,7 @@
 use super::material::*;
 use super::renderable::*;
 use super::triangle::Triangle;
+use super::light::PointLight;
 use cgmath::{vec3, Vector3};
 use obj::{IndexTuple, Obj, SimplePolygon};
 use std::borrow::Borrow;
@@ -10,12 +11,41 @@ type MatTri<T> = ShapeMat<Triangle<T>, UniformMaterial<Lambert<T>>>;
 
 pub struct Scene<T> {
     pub objects: Vec<MatTri<T>>,
+    pub lights: Vec<PointLight<T>>,
 }
 
 #[derive(Debug)]
 pub enum SceneLoadError {
     LoadObjError,
     SceneContainsGeneralPolyError,
+}
+
+impl<T> Scene<T> {
+    pub fn empty() -> Scene<T> {
+        Scene { objects: vec![], lights: vec![]}
+    }
+}
+
+impl Scene<f64> {
+    pub fn load(path: &Path) -> Result<Scene<f64>, SceneLoadError> {
+        let obj: Obj<SimplePolygon> = Obj::load(path).map_err(|_| SceneLoadError::LoadObjError)?;
+        let mut scene: Scene<f64> = Scene::empty();
+
+        let objects: &Vec<_> = obj.objects.borrow();
+        for object in objects {
+            let groups: &Vec<_> = object.groups.borrow();
+            for group in groups {
+                let polys: &Vec<_> = group.polys.borrow();
+                for poly in polys {
+                    let tri = to_triangle(&obj, poly)?;
+                    // use a standard color until we can load from the file
+                    let material = UniformMaterial::new(Lambert::new(1.0, 0.0, 0.0));
+                    scene.objects.push(MatTri::new(tri, material));
+                }
+            }
+        }
+        Ok(scene)
+    }
 }
 
 fn get_point(obj: &Obj<SimplePolygon>, point_index: IndexTuple) -> Vector3<f64> {
@@ -43,30 +73,3 @@ fn to_triangle(
     ))
 }
 
-impl<T> Scene<T> {
-    pub fn empty() -> Scene<T> {
-        Scene { objects: vec![] }
-    }
-}
-
-impl Scene<f64> {
-    pub fn load(path: &Path) -> Result<Scene<f64>, SceneLoadError> {
-        let obj: Obj<SimplePolygon> = Obj::load(path).map_err(|_| SceneLoadError::LoadObjError)?;
-        let mut scene: Scene<f64> = Scene::empty();
-
-        let objects: &Vec<_> = obj.objects.borrow();
-        for object in objects {
-            let groups: &Vec<_> = object.groups.borrow();
-            for group in groups {
-                let polys: &Vec<_> = group.polys.borrow();
-                for poly in polys {
-                    let tri = to_triangle(&obj, poly)?;
-                    // use a standard color until we can load from the file
-                    let material = UniformMaterial::new(Lambert::new(1.0, 0.0, 0.0));
-                    scene.objects.push(MatTri::new(tri, material));
-                }
-            }
-        }
-        Ok(scene)
-    }
-}
