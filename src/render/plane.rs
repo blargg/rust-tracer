@@ -1,23 +1,25 @@
-use cgmath::{BaseFloat, InnerSpace, Vector3};
+extern crate nalgebra as na;
+use crate::number::*;
+use na::{Scalar, Vector3};
 
-pub struct Plane<T> {
+pub struct Plane<T: Scalar> {
     normal: Vector3<T>,
     dist: T,
 }
 
-impl<T> Plane<T> {
-    pub const fn new(normal: Vector3<T>, dist: T) -> Plane<T> {
+impl<T: Scalar> Plane<T> {
+    pub fn new(normal: Vector3<T>, dist: T) -> Plane<T> {
         Plane { normal, dist }
     }
 }
 
-impl<T: BaseFloat> Plane<T> {
+impl<T: GenFloat> Plane<T> {
     pub fn new_at_point(position: Vector3<T>, normal: Vector3<T>) -> Plane<T> {
-        Plane::new(normal, -normal.dot(position))
+        Plane::new(normal, -normal.dot(&position))
     }
 
     pub fn distance_to(&self, point: Vector3<T>) -> T {
-        let t = (-self.dist + -self.normal.dot(point)) / self.normal.magnitude2();
+        let t = (-self.dist + -self.normal.dot(&point)) / self.normal.magnitude_squared();
         (self.normal * t).magnitude()
     }
 }
@@ -25,7 +27,11 @@ impl<T: BaseFloat> Plane<T> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use cgmath::*;
+    use approx::abs_diff_eq;
+
+    fn vec3<T: Scalar>(x: T, y: T, z: T) -> Vector3<T> {
+        Vector3::new(x, y, z)
+    }
 
     #[test]
     fn distance_to_test() {

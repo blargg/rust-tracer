@@ -1,8 +1,8 @@
 pub mod camera;
 pub mod color;
+mod light;
 pub mod material;
 mod plane;
-mod light;
 pub mod ray;
 pub mod renderable;
 pub mod renderer;

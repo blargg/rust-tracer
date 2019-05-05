@@ -1,15 +1,17 @@
-extern crate cgmath;
+extern crate alga;
+extern crate nalgebra as na;
 
-use cgmath::{dot, BaseFloat, InnerSpace, Vector3};
+use crate::number::*;
+use na::*;
 
 #[derive(Debug)]
-pub struct Ray<T> {
+pub struct Ray<T: Scalar> {
     pub origin: Vector3<T>,
     pub direction: Vector3<T>,
 }
 
-impl<T> Ray<T> {
-    pub const fn new(orig: Vector3<T>, dir: Vector3<T>) -> Ray<T> {
+impl<T: Scalar> Ray<T> {
+    pub fn new(orig: Vector3<T>, dir: Vector3<T>) -> Ray<T> {
         Ray {
             origin: orig,
             direction: dir,
@@ -17,10 +19,10 @@ impl<T> Ray<T> {
     }
 }
 
-impl<T: BaseFloat> Ray<T> {
+impl<T: GenFloat> Ray<T> {
     pub fn closest_point(&self, p: Vector3<T>) -> Vector3<T> {
         let p_trans = p - self.origin;
-        let mag: T = dot(self.direction, p_trans) / self.direction.magnitude2();
+        let mag: T = self.direction.dot(&p_trans) / self.direction.magnitude_squared();
         let mag: T = mag.max(T::zero());
         self.origin + (self.direction * mag)
     }
@@ -34,19 +36,21 @@ impl<T: BaseFloat> Ray<T> {
 #[cfg(test)]
 pub mod tests {
     use super::*;
-    use cgmath::vec3;
+    use na::{ArrayStorage, U1, U3};
     use proptest::prelude::*;
 
     const DELTA: f64 = 0.00001;
 
-    pub fn st_vec3<T>(s: impl Strategy<Value = T> + Clone) -> impl Strategy<Value = Vector3<T>>
+    pub fn st_vec3<T>(
+        s: impl Strategy<Value = T> + Clone,
+    ) -> impl Strategy<Value = Matrix<T, U3, U1, ArrayStorage<T, U3, U1>>>
     where
-        T: Arbitrary,
+        T: Arbitrary + Scalar,
     {
-        (s.clone(), s.clone(), s.clone()).prop_map(|(x, y, z)| vec3(x, y, z))
+        (s.clone(), s.clone(), s.clone()).prop_map(|(x, y, z)| Vector3::new(x, y, z))
     }
 
-    pub fn arb_ray<T>(
+    pub fn arb_ray<T: Scalar>(
         orig_st: impl Strategy<Value = T> + Clone,
         dir_st: impl Strategy<Value = T> + Clone,
     ) -> impl Strategy<Value = Ray<T>>
@@ -59,7 +63,7 @@ pub mod tests {
     proptest! {
         #[test]
         fn closest_origin(point in st_vec3(-1000f64..1000f64)) {
-            let v0 = vec3(0.0, 0.0, 0.0);
+            let v0 = Vector3::new(0.0, 0.0, 0.0);
             let r: Ray<f64> = Ray::new(v0, point);
             let closest = r.closest_point(point);
             let diff = (point-closest).magnitude();

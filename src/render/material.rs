@@ -1,13 +1,14 @@
-extern crate cgmath;
+extern crate nalgebra as na;
 
 use super::color::Rgb;
 use super::shape::DiffGeom;
-use cgmath::{BaseFloat, InnerSpace, Vector3};
+use crate::number::*;
+use na::{Scalar, Vector3};
 
 // Defines the type of scattering functions used for lighting materials.
 // Defines how light is reflected by the surface for queried light and view vectors
 pub trait BSDF {
-    type NumTy;
+    type NumTy: Scalar;
     /// Defines how light is reflected of the surface at an assumed point and orientation.
     /// Vectors will be oriented to the reflection space. That means this can assume the normal is
     /// unit vector in the positive Z direction <0, 0, 1>
@@ -24,7 +25,7 @@ pub trait BSDF {
 
 pub trait Material {
     // the number type to use
-    type NumTy;
+    type NumTy: Scalar;
     // the BSDF to return
     type BSDF_fn;
 
@@ -44,10 +45,10 @@ impl<T> Lambert<T> {
     }
 }
 
-impl<T: BaseFloat> BSDF for Lambert<T> {
+impl<T: GenFloat> BSDF for Lambert<T> {
     type NumTy = T;
     fn bsdf(&self, view: &Vector3<Self::NumTy>, light: &Vector3<Self::NumTy>) -> Rgb<Self::NumTy> {
-        let cos = view.dot(*light) / (view.magnitude() * light.magnitude());
+        let cos = view.dot(light) / (view.magnitude() * light.magnitude());
         self.color.clone() * cos
     }
 }

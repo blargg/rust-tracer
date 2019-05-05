@@ -1,5 +1,3 @@
-extern crate cgmath;
-
 use std::ops::Mul;
 
 #[derive(Clone)]

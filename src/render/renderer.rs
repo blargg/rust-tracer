@@ -1,4 +1,3 @@
-extern crate cgmath;
 extern crate image;
 extern crate obj;
 

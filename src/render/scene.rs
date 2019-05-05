@@ -1,15 +1,17 @@
+extern crate nalgebra as na;
+
+use super::light::PointLight;
 use super::material::*;
 use super::renderable::*;
 use super::triangle::Triangle;
-use super::light::PointLight;
-use cgmath::{vec3, Vector3};
+use na::{Scalar, Vector3};
 use obj::{IndexTuple, Obj, SimplePolygon};
 use std::borrow::Borrow;
 use std::path::Path;
 
 type MatTri<T> = ShapeMat<Triangle<T>, UniformMaterial<Lambert<T>>>;
 
-pub struct Scene<T> {
+pub struct Scene<T: Scalar> {
     pub objects: Vec<MatTri<T>>,
     pub lights: Vec<PointLight<T>>,
 }
@@ -20,9 +22,12 @@ pub enum SceneLoadError {
     SceneContainsGeneralPolyError,
 }
 
-impl<T> Scene<T> {
+impl<T: Scalar> Scene<T> {
     pub fn empty() -> Scene<T> {
-        Scene { objects: vec![], lights: vec![]}
+        Scene {
+            objects: vec![],
+            lights: vec![],
+        }
     }
 }
 
@@ -52,7 +57,7 @@ fn get_point(obj: &Obj<SimplePolygon>, point_index: IndexTuple) -> Vector3<f64> 
     let IndexTuple(pi, _, _) = point_index;
     let point = obj.position[pi];
 
-    vec3(
+    Vector3::new(
         f64::from(point[0]),
         f64::from(point[1]),
         f64::from(point[2]),
@@ -72,4 +77,3 @@ fn to_triangle(
         get_point(obj, poly[2]),
     ))
 }
-

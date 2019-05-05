@@ -1,11 +1,14 @@
+extern crate nalgebra as na;
+
 use super::material::Material;
 use super::ray::Ray;
 use super::shape::{DiffGeom, Shape};
+use na::Scalar;
 
 /// This trait defines what the requirements to be renderable.
 /// This is essentially a combination of the `Shape` and `Material` traits
 pub trait Renderable {
-    type NumTy;
+    type NumTy: Scalar;
     type BSDF_fn;
     fn intersection(&self, ray: &Ray<Self::NumTy>) -> Option<Self::NumTy>;
     fn get_bsdf(&self, g: &DiffGeom<Self::NumTy>) -> Self::BSDF_fn;

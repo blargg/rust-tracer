@@ -1,18 +1,21 @@
+extern crate alga;
+extern crate nalgebra as na;
 extern crate num;
 
 use super::ray;
 use super::shape::*;
-use cgmath::{dot, BaseFloat, InnerSpace, Vector3};
+use crate::number::*;
+use na::{Scalar, Vector3};
 use num::Zero;
 use std::cmp::PartialOrd;
 
 #[derive(Debug)]
-pub struct Sphere<T> {
+pub struct Sphere<T: Scalar> {
     center: Vector3<T>,
     radius: T,
 }
 
-impl<T: Zero + PartialOrd> Sphere<T> {
+impl<T: Scalar + Zero + PartialOrd> Sphere<T> {
     pub fn new(center: Vector3<T>, radius: T) -> Sphere<T> {
         let r: T;
         if T::zero().lt(&radius) {
@@ -24,14 +27,14 @@ impl<T: Zero + PartialOrd> Sphere<T> {
     }
 }
 
-impl<N: BaseFloat> Shape for Sphere<N> {
+impl<N: GenFloat> Shape for Sphere<N> {
     type NumTy = N;
 
     fn intersection(&self, ray: &ray::Ray<N>) -> Option<N> {
         let ray_offset = ray.origin - self.center;
-        let a: N = ray.direction.magnitude2();
-        let b: N = double(dot(ray_offset, ray.direction));
-        let c: N = dot(ray_offset, ray_offset) - self.radius.powi(2);
+        let a: N = ray.direction.norm_squared();
+        let b: N = double(ray_offset.dot(&ray.direction));
+        let c: N = ray_offset.dot(&ray_offset) - self.radius.powi(2);
         let discriminant = (b * b) - double(double(a * c));
         if discriminant < N::zero() {
             return None;
@@ -52,22 +55,22 @@ impl<N: BaseFloat> Shape for Sphere<N> {
     }
 }
 
-fn double<N: BaseFloat>(n: N) -> N {
+fn double<N: std::ops::Add + Copy>(n: N) -> N::Output {
     n + n
 }
 
 #[cfg(test)]
 mod tests {
-    use cgmath::{abs_diff_eq, vec3, InnerSpace};
     use proptest::prelude::*;
 
     use super::ray::tests::{arb_ray, st_vec3};
     use super::ray::Ray;
     use super::*;
+    use approx::abs_diff_eq;
 
     const DELTA: f32 = 0.001;
 
-    pub fn arb_sphere<T>(
+    pub fn arb_sphere<T: Scalar>(
         c: impl Strategy<Value = T> + Clone,
         r: impl Strategy<Value = T> + Clone,
     ) -> impl Strategy<Value = Sphere<T>>
@@ -80,15 +83,15 @@ mod tests {
     #[test]
     fn intersection_test() {
         let s: Sphere<f32> = Sphere {
-            center: vec3(0.0, 0.0, 0.0),
+            center: Vector3::new(0.0, 0.0, 0.0),
             radius: 5.0,
         };;
         let r: Ray<f32> = Ray {
-            origin: vec3(0.0, 0.0, 0.0),
-            direction: vec3(1.0, 0.0, 0.0),
+            origin: Vector3::new(0.0, 0.0, 0.0),
+            direction: Vector3::new(1.0, 0.0, 0.0),
         };
 
-        let r2: Ray<f32> = Ray::new(vec3(100.0, 0.0, 0.0), vec3(1.0, 0.0, 0.0));
+        let r2: Ray<f32> = Ray::new(Vector3::new(100.0, 0.0, 0.0), Vector3::new(1.0, 0.0, 0.0));
 
         assert!(s.intersection(&r).is_some());
         assert!(s.intersection(&r2).is_none());
