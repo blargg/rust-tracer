@@ -1,5 +1,3 @@
-extern crate nalgebra as na;
-
 use super::color::Rgb;
 use super::shape::DiffGeom;
 use crate::number::*;

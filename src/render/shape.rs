@@ -1,4 +1,3 @@
-extern crate nalgebra as na;
 use na::{Scalar, Vector3};
 
 use super::ray::Ray;

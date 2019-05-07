@@ -1,5 +1,3 @@
-extern crate nalgebra as na;
-
 use super::light::PointLight;
 use super::material::*;
 use super::renderable::*;

@@ -1,6 +1,3 @@
-extern crate alga;
-extern crate nalgebra as na;
-
 use crate::number::*;
 use na::*;
 

@@ -1,6 +1,3 @@
-extern crate image;
-extern crate obj;
-
 use super::camera::Camera;
 use super::ray::Ray;
 use super::renderable::Renderable;

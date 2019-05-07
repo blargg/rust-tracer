@@ -1,5 +1,3 @@
-extern crate nalgebra as na;
-
 use super::ray::Ray;
 use na::{RealField, Rotation3, Scalar, Vector3};
 

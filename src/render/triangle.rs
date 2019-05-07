@@ -1,6 +1,3 @@
-extern crate alga;
-extern crate nalgebra as na;
-
 use super::ray;
 use super::shape::*;
 use alga::general::Ring;

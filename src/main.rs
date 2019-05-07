@@ -1,5 +1,7 @@
+extern crate alga;
 extern crate image;
 extern crate nalgebra as na;
+extern crate num;
 
 mod number;
 mod render;

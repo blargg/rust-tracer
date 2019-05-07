@@ -1,7 +1,3 @@
-extern crate alga;
-extern crate nalgebra as na;
-extern crate num;
-
 use super::ray;
 use super::shape::*;
 use crate::number::*;

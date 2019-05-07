@@ -1,5 +1,3 @@
-extern crate nalgebra as na;
-
 use super::material::Material;
 use super::ray::Ray;
 use super::shape::{DiffGeom, Shape};
