@@ -103,7 +103,7 @@ mod tests {
             Vector3::new(0.0, -1.0, -1.0),
             Vector3::new(0.0, 1.0, 0.0),
         );
-        let ray: Ray<f64> = Ray::new(Point3::new(-1.0, 0.0, 0.0), Vector3::new(1.0, 0.0, 0.0));
+        let ray: Ray<f64> = Ray::new_normalize(Point3::new(-1.0, 0.0, 0.0), Vector3::new(1.0, 0.0, 0.0));
 
         let intersection = tri.intersection(&ray);
         match intersection {

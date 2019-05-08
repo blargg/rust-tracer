@@ -5,6 +5,7 @@ extern crate num;
 
 mod number;
 mod render;
+mod vector;
 
 use na::{Point3, Vector3};
 use render::camera::*;

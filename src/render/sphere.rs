@@ -86,12 +86,8 @@ mod tests {
             center: Point3::origin(),
             radius: 5.0,
         };;
-        let r: Ray<f32> = Ray {
-            origin: Point3::origin(),
-            direction: Vector3::new(1.0, 0.0, 0.0),
-        };
-
-        let r2: Ray<f32> = Ray::new(Point3::new(100.0, 0.0, 0.0), Vector3::new(1.0, 0.0, 0.0));
+        let r: Ray<f32> = Ray::new_normalize(Point3::origin(), Vector3::new(1.0, 0.0, 0.0));
+        let r2: Ray<f32> = Ray::new_normalize(Point3::new(100.0, 0.0, 0.0), Vector3::new(1.0, 0.0, 0.0));
 
         assert!(s.intersection(&r).is_some());
         assert!(s.intersection(&r2).is_none());

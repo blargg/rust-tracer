@@ -68,7 +68,7 @@ impl Camera<f64> {
             self.orientation
             .transform_vector(&Vector3::new(0.0, 0.0, -1.0))
             * focal_distance;
-        Ray::new(point, point - focal_point)
+        Ray::new_normalize(point, point - focal_point)
     }
 }
 
