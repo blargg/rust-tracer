@@ -69,3 +69,19 @@ impl<B: BSDF + Clone> Material for UniformMaterial<B> {
         self.bsdf.clone()
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn lambert_is_BSDF() {
+        fn is_BSDF<B: BSDF>() { };
+        is_BSDF::<Lambert<f64>>();
+        is_BSDF::<Lambert<f32>>();
+    }
+
+    fn uniform_is_material() {
+        fn is_material<M: Material>() { };
+        is_material::<UniformMaterial<Lambert<f64>>>();
+    }
+}

@@ -49,6 +49,10 @@ impl<N: GenFloat> Shape for Sphere<N> {
             }
         }
     }
+
+    fn normal(&self, point: &Vector3<Self::NumTy>) -> Vector3<Self::NumTy> {
+        point - self.center
+    }
 }
 
 fn double<N: std::ops::Add + Copy>(n: N) -> N::Output {

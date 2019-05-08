@@ -1,10 +1,14 @@
+use super::color::Rgb;
 use super::light::PointLight;
 use super::material::*;
 use super::renderable::*;
 use super::triangle::Triangle;
+use super::ray::Ray;
+use super::shape::Shape;
 use na::{Scalar, Vector3};
 use obj::{IndexTuple, Obj, SimplePolygon};
 use std::borrow::Borrow;
+use std::cmp::Ordering;
 use std::path::Path;
 
 type MatTri<T> = ShapeMat<Triangle<T>, UniformMaterial<Lambert<T>>>;
@@ -29,6 +33,33 @@ impl<T: Scalar> Scene<T> {
     }
 }
 
+// TODO generalize to GenFloat
+impl Scene<f64> {
+
+    pub fn intersects_renderable(&self, ray: &Ray<f64>) -> Option<(&MatTri<f64>, f64)> {
+        let shape_inter = self.objects.iter().map(|s| (s, s.intersection(ray)));
+        let closest = shape_inter.min_by(closest_to_ray(ray));
+        closest.and_then(|(s, inter)| {
+            match inter {
+                None => None,
+                Some(i) => Some((s, i)),
+            }
+        })
+    }
+}
+
+// TODO check if this works
+fn closest_to_ray<S: Renderable, T:PartialOrd>(ray: &Ray<S::NumTy>) -> fn (&(&S, Option<T>), &(&S, Option<T>)) -> Ordering {
+    |(_, t1), (_, t2)| {
+        match (t1, t2) {
+            (None, _) => Ordering::Greater,
+            (_, None) => Ordering::Less,
+            (Some(x), Some(y)) => x.partial_cmp(y).unwrap_or(Ordering::Equal),
+        }
+    }
+
+}
+
 impl Scene<f64> {
     pub fn load(path: &Path) -> Result<Scene<f64>, SceneLoadError> {
         let obj: Obj<SimplePolygon> = Obj::load(path).map_err(|_| SceneLoadError::LoadObjError)?;
@@ -47,6 +78,12 @@ impl Scene<f64> {
                 }
             }
         }
+
+        // hard coded lights
+        let white = Rgb::new(1.0, 1.0, 1.0);
+        let light: PointLight<f64> = PointLight { position: Vector3::new(5.0, 5.0, 1.0), color: white};
+        scene.lights.push(light);
+
         Ok(scene)
     }
 }

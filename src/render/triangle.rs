@@ -30,6 +30,7 @@ impl<T: Scalar + Ring> Triangle<T> {
     }
 }
 
+// TODO generalize to GenFloat
 impl Shape for Triangle<f64> {
     type NumTy = f64;
     fn intersection(&self, ray: &ray::Ray<f64>) -> Option<f64> {
@@ -64,6 +65,12 @@ impl Shape for Triangle<f64> {
             Some(t)
         }
     }
+
+    fn normal(&self, _point: &Vector3<Self::NumTy>) -> Vector3<Self::NumTy> {
+        let e1 = self.v2 - self.v1;
+        let e2 = self.v3 - self.v3;
+        e1.cross(&e2)
+    }
 }
 
 #[cfg(test)]
@@ -81,6 +88,14 @@ mod tests {
     {
         (st_vec3(s.clone()), st_vec3(s.clone()), st_vec3(s.clone()))
             .prop_map(|(v1, v2, v3)| Triangle::new(v1, v2, v3))
+    }
+
+    /// Checks if Triangle is a valid shape
+    #[test]
+    fn traingle_is_shape() {
+        fn is_shape<T: Shape>() {}
+        is_shape::<Triangle<f64>>();
+        // is_shape::<Triangle<f32>>(); // TODO
     }
 
     #[test]

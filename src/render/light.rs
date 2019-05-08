@@ -3,6 +3,6 @@ use na::{Scalar, Vector3};
 use super::color::*;
 
 pub struct PointLight<T: Scalar> {
-    position: Vector3<T>,
-    color: Rgb<T>,
+    pub position: Vector3<T>,
+    pub color: Rgb<T>,
 }
