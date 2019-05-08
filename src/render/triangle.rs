@@ -67,9 +67,7 @@ impl Shape for Triangle<f64> {
     }
 
     fn normal(&self, _point: &Vector3<Self::NumTy>) -> Vector3<Self::NumTy> {
-        let e1 = self.v2 - self.v1;
-        let e2 = self.v3 - self.v3;
-        e1.cross(&e2)
+        self.true_normal()
     }
 }
 
