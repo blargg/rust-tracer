@@ -1,5 +1,6 @@
 use super::ray;
 use super::shape::*;
+use crate::number;
 use alga::general::Ring;
 use na::{Scalar, Vector3};
 
@@ -38,8 +39,7 @@ impl Shape for Triangle<f64> {
         let e2: Vector3<f64> = self.v3 - self.v1;
         let s1 = ray.direction.cross(&e2);
         let divisor = s1.dot(&e1);
-        // TODO can we use a better epsilon?
-        if divisor.abs() < 0.000001 {
+        if divisor.abs() < number::EPSILON {
             return None;
         }
 

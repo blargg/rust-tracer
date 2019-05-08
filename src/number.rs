@@ -5,3 +5,6 @@ pub trait GenFloat: RealField + ComplexField<RealField = Self> {}
 
 impl GenFloat for f32 {}
 impl GenFloat for f64 {}
+
+
+pub const EPSILON: f64 = 0.00001;
