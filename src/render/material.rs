@@ -18,7 +18,7 @@ pub trait BSDF {
     ///
     /// # Returns
     /// Returns the ratio at which light will be reflected.
-    fn bsdf(&self, view: &Vector3<Self::NumTy>, light: &Vector3<Self::NumTy>) -> Rgb<Self::NumTy>;
+    fn bsdf(&self, view: &Vector3<Self::NumTy>, normal: &Vector3<Self::NumTy>, light: &Vector3<Self::NumTy>) -> Rgb<Self::NumTy>;
 }
 
 pub trait Material {
@@ -37,18 +37,15 @@ pub struct Lambert<T> {
 
 impl<T> Lambert<T> {
     pub fn new(red: T, green: T, blue: T) -> Lambert<T> {
-        Lambert {
-            color: Rgb::new(red, green, blue),
-        }
+        Lambert { color: Rgb::new(red, green, blue) }
     }
 }
 
 impl<T: GenFloat> BSDF for Lambert<T> {
     type NumTy = T;
-    fn bsdf(&self, _view: &Vector3<Self::NumTy>, light: &Vector3<Self::NumTy>) -> Rgb<Self::NumTy> {
-        let normal = Vector3::z();
+    fn bsdf(&self, _view: &Vector3<Self::NumTy>, normal: &Vector3<Self::NumTy>, light: &Vector3<Self::NumTy>) -> Rgb<Self::NumTy> {
         let cos = normal.dot(light) / (normal.magnitude() * light.magnitude());
-        self.color.clone() * cos
+        self.color.clone() * cos.max(T::zero())
     }
 }
 

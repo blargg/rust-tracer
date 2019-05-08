@@ -34,10 +34,11 @@ fn radiance(ray: Ray<f64>, scene: &Scene<f64>) -> color::Rgb<f64> {
         None => color::Rgb::new(0.0, 0.0, 0.0),
         Some((renderable, t)) => {
             let isct_pt = ray.at_time(t);
-            let diff_geom = DiffGeom::new(isct_pt, renderable.normal(&isct_pt));
+            let norm = renderable.normal(&isct_pt);
+            let diff_geom = DiffGeom::new(isct_pt, norm);
             let bsdf = renderable.get_bsdf(&diff_geom);
             // TODO iterate over all lights
-            let reflect = bsdf.bsdf(&(ray.direction * -1.0), &(scene.lights[0].position - isct_pt));
+            let reflect = bsdf.bsdf(&(ray.direction * -1.0), &norm, &(scene.lights[0].position - isct_pt));
             scene.lights[0].color.clone() * reflect
         },
     }
