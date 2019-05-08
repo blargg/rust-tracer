@@ -45,8 +45,9 @@ impl<T> Lambert<T> {
 
 impl<T: GenFloat> BSDF for Lambert<T> {
     type NumTy = T;
-    fn bsdf(&self, view: &Vector3<Self::NumTy>, light: &Vector3<Self::NumTy>) -> Rgb<Self::NumTy> {
-        let cos = view.dot(light) / (view.magnitude() * light.magnitude());
+    fn bsdf(&self, _view: &Vector3<Self::NumTy>, light: &Vector3<Self::NumTy>) -> Rgb<Self::NumTy> {
+        let normal = Vector3::z();
+        let cos = normal.dot(light) / (normal.magnitude() * light.magnitude());
         self.color.clone() * cos
     }
 }
