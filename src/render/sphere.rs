@@ -1,25 +1,25 @@
 use super::ray;
 use super::shape::*;
 use crate::number::*;
-use na::{Scalar, Vector3};
+use na::{Scalar, Vector3, Point3};
 use num::Zero;
 use std::cmp::PartialOrd;
 
 #[derive(Debug)]
 pub struct Sphere<T: Scalar> {
-    center: Vector3<T>,
+    center: Point3<T>,
     radius: T,
 }
 
 impl<T: Scalar + Zero + PartialOrd> Sphere<T> {
-    pub fn new(center: Vector3<T>, radius: T) -> Sphere<T> {
+    pub fn new(center: Point3<T>, radius: T) -> Sphere<T> {
         let r: T;
         if T::zero().lt(&radius) {
             r = radius;
         } else {
             r = T::zero();
         }
-        Sphere { center, radius: r }
+        Sphere { center:center, radius: r }
     }
 }
 
@@ -27,7 +27,7 @@ impl<N: GenFloat> Shape for Sphere<N> {
     type NumTy = N;
 
     fn intersection(&self, ray: &ray::Ray<N>) -> Option<N> {
-        let ray_offset = ray.origin - self.center;
+        let ray_offset: Vector3<N> = ray.origin - self.center;
         let a: N = ray.direction.norm_squared();
         let b: N = double(ray_offset.dot(&ray.direction));
         let c: N = ray_offset.dot(&ray_offset) - self.radius.powi(2);
@@ -50,7 +50,7 @@ impl<N: GenFloat> Shape for Sphere<N> {
         }
     }
 
-    fn normal(&self, point: &Vector3<Self::NumTy>) -> Vector3<Self::NumTy> {
+    fn normal(&self, point: &Point3<Self::NumTy>) -> Vector3<Self::NumTy> {
         point - self.center
     }
 }
@@ -63,7 +63,7 @@ fn double<N: std::ops::Add + Copy>(n: N) -> N::Output {
 mod tests {
     use proptest::prelude::*;
 
-    use super::ray::tests::{arb_ray, st_vec3};
+    use super::ray::tests::*;
     use super::ray::Ray;
     use super::*;
     use approx::abs_diff_eq;
@@ -77,21 +77,21 @@ mod tests {
     where
         T: Arbitrary + Zero + PartialOrd,
     {
-        (st_vec3(c.clone()), r.clone()).prop_map(|(cnt, rad)| Sphere::new(cnt, rad))
+        (arb_point(c.clone()), r.clone()).prop_map(|(cnt, rad)| Sphere::new(cnt, rad))
     }
 
     #[test]
     fn intersection_test() {
         let s: Sphere<f32> = Sphere {
-            center: Vector3::new(0.0, 0.0, 0.0),
+            center: Point3::origin(),
             radius: 5.0,
         };;
         let r: Ray<f32> = Ray {
-            origin: Vector3::new(0.0, 0.0, 0.0),
+            origin: Point3::origin(),
             direction: Vector3::new(1.0, 0.0, 0.0),
         };
 
-        let r2: Ray<f32> = Ray::new(Vector3::new(100.0, 0.0, 0.0), Vector3::new(1.0, 0.0, 0.0));
+        let r2: Ray<f32> = Ray::new(Point3::new(100.0, 0.0, 0.0), Vector3::new(1.0, 0.0, 0.0));
 
         assert!(s.intersection(&r).is_some());
         assert!(s.intersection(&r2).is_none());

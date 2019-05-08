@@ -2,21 +2,21 @@ use super::ray;
 use super::shape::*;
 use crate::number;
 use alga::general::Ring;
-use na::{Scalar, Vector3};
+use na::{Point3, Scalar, Vector3};
 
 #[derive(Debug)]
 pub struct Triangle<T: Scalar> {
-    v1: Vector3<T>,
-    v2: Vector3<T>,
-    v3: Vector3<T>,
+    v1: Point3<T>,
+    v2: Point3<T>,
+    v3: Point3<T>,
 }
 
 impl<T: Scalar> Triangle<T> {
     pub fn new(vertex1: Vector3<T>, vertex2: Vector3<T>, vertex3: Vector3<T>) -> Triangle<T> {
         Triangle {
-            v1: vertex1,
-            v2: vertex2,
-            v3: vertex3,
+            v1: Point3::from(vertex1),
+            v2: Point3::from(vertex2),
+            v3: Point3::from(vertex3),
         }
     }
 }
@@ -44,7 +44,7 @@ impl Shape for Triangle<f64> {
         }
 
         let inv_div = 1.0 / divisor;
-        let s: Vector3<f64> = ray.origin - self.v1;
+        let s: Vector3<f64> = Point3::from(ray.origin) - self.v1;
         // b1 of the barycentric coordinates
         let b1: f64 = s1.dot(&s) * inv_div;
 
@@ -66,7 +66,7 @@ impl Shape for Triangle<f64> {
         }
     }
 
-    fn normal(&self, _point: &Vector3<Self::NumTy>) -> Vector3<Self::NumTy> {
+    fn normal(&self, _point: &Point3<Self::NumTy>) -> Vector3<Self::NumTy> {
         self.true_normal()
     }
 }
@@ -103,7 +103,7 @@ mod tests {
             Vector3::new(0.0, -1.0, -1.0),
             Vector3::new(0.0, 1.0, 0.0),
         );
-        let ray: Ray<f64> = Ray::new(Vector3::new(-1.0, 0.0, 0.0), Vector3::new(1.0, 0.0, 0.0));
+        let ray: Ray<f64> = Ray::new(Point3::new(-1.0, 0.0, 0.0), Vector3::new(1.0, 0.0, 0.0));
 
         let intersection = tri.intersection(&ray);
         match intersection {
@@ -126,8 +126,9 @@ mod tests {
                 Some (t) => {
                     let int_point = ray.at_time(t);
                     let n = tri.true_normal();
-                    let d_intersection = n.dot(&int_point);
-                    let d_actual = n.dot(&tri.v1);
+                    // TODO rewrite to use Plane
+                    let d_intersection = n.dot(&(int_point - Point3::origin()));
+                    let d_actual = n.dot(&(tri.v1 - Point3::origin()));
                     prop_assert!((d_intersection - d_actual).abs() < 0.0001)
                 },
             }

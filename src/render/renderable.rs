@@ -1,7 +1,7 @@
 use super::material::Material;
 use super::ray::Ray;
 use super::shape::{DiffGeom, Shape};
-use na::{Scalar, Vector3};
+use na::{Point3, Scalar, Vector3};
 
 /// This trait defines what the requirements to be renderable.
 /// This is essentially a combination of the `Shape` and `Material` traits
@@ -10,7 +10,7 @@ pub trait Renderable {
     type NumTy: Scalar;
     type BSDF_fn;
     fn intersection(&self, ray: &Ray<Self::NumTy>) -> Option<Self::NumTy>;
-    fn normal(&self, point: &Vector3<Self::NumTy>) -> Vector3<Self::NumTy>;
+    fn normal(&self, point: &Point3<Self::NumTy>) -> Vector3<Self::NumTy>;
     fn get_bsdf(&self, g: &DiffGeom<Self::NumTy>) -> Self::BSDF_fn;
 }
 
@@ -33,7 +33,7 @@ impl<S: Shape, M: Material<NumTy = S::NumTy>> Renderable for ShapeMat<S, M> {
         self.shape.intersection(ray)
     }
 
-    fn normal(&self, point: &Vector3<Self::NumTy>) -> Vector3<Self::NumTy> {
+    fn normal(&self, point: &Point3<Self::NumTy>) -> Vector3<Self::NumTy> {
         self.shape.normal(point)
     }
 

@@ -1,4 +1,4 @@
-use na::{Scalar, Vector3};
+use na::{Point3, Scalar, Vector3};
 
 use super::ray::Ray;
 
@@ -14,16 +14,16 @@ pub trait Shape {
 
     /// Returns a normal for the shape on a given surface point.
     /// This does not need to be meaningful for points that cannot be intersection points.
-    fn normal(&self, point: &Vector3<Self::NumTy>) -> Vector3<Self::NumTy>;
+    fn normal(&self, point: &Point3<Self::NumTy>) -> Vector3<Self::NumTy>;
 }
 
 pub struct DiffGeom<T: Scalar> {
-    position: Vector3<T>,
+    position: Point3<T>,
     normal: Vector3<T>,
 }
 
 impl<T: Scalar> DiffGeom<T> {
-    pub fn new(position: Vector3<T>, normal: Vector3<T>) -> DiffGeom<T> {
+    pub fn new(position: Point3<T>, normal: Vector3<T>) -> DiffGeom<T> {
         DiffGeom { position, normal }
     }
 }

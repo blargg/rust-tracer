@@ -3,12 +3,12 @@ use na::*;
 
 #[derive(Debug)]
 pub struct Ray<T: Scalar> {
-    pub origin: Vector3<T>,
+    pub origin: Point3<T>,
     pub direction: Vector3<T>,
 }
 
 impl<T: Scalar> Ray<T> {
-    pub fn new(orig: Vector3<T>, dir: Vector3<T>) -> Ray<T> {
+    pub fn new(orig: Point3<T>, dir: Vector3<T>) -> Ray<T> {
         Ray {
             origin: orig,
             direction: dir,
@@ -17,7 +17,7 @@ impl<T: Scalar> Ray<T> {
 }
 
 impl<T: GenFloat> Ray<T> {
-    pub fn closest_point(&self, p: Vector3<T>) -> Vector3<T> {
+    pub fn closest_point(&self, p: Point3<T>) -> Point3<T> {
         let p_trans = p - self.origin;
         let mag: T = self.direction.dot(&p_trans) / self.direction.magnitude_squared();
         let mag: T = mag.max(T::zero());
@@ -25,7 +25,7 @@ impl<T: GenFloat> Ray<T> {
     }
 
     // returns the point in the ray traveling time * the direction vector from the orign
-    pub fn at_time(&self, time: T) -> Vector3<T> {
+    pub fn at_time(&self, time: T) -> Point3<T> {
         self.origin + self.direction * time
     }
 }
@@ -47,6 +47,13 @@ pub mod tests {
         (s.clone(), s.clone(), s.clone()).prop_map(|(x, y, z)| Vector3::new(x, y, z))
     }
 
+    pub fn arb_point<N>(st: impl Strategy<Value = N> + Clone) -> impl Strategy<Value = Point3<N>>
+        where
+            N: Arbitrary + Scalar,
+    {
+        st_vec3(st).prop_map(Point3::from)
+    }
+
     pub fn arb_ray<T: Scalar>(
         orig_st: impl Strategy<Value = T> + Clone,
         dir_st: impl Strategy<Value = T> + Clone,
@@ -54,22 +61,22 @@ pub mod tests {
     where
         T: Arbitrary,
     {
-        (st_vec3(orig_st), st_vec3(dir_st)).prop_map(|(o, d)| Ray::new(o, d))
+        (arb_point(orig_st), st_vec3(dir_st)).prop_map(|(o, d)| Ray::new(o, d))
     }
 
     proptest! {
         #[test]
-        fn closest_origin(point in st_vec3(-1000f64..1000f64)) {
-            let v0 = Vector3::new(0.0, 0.0, 0.0);
-            let r: Ray<f64> = Ray::new(v0, point);
+        fn closest_origin(point in arb_point(-1000f64..1000f64)) {
+            let v0 = Point3::new(0.0, 0.0, 0.0);
+            let r: Ray<f64> = Ray::new(v0, (point - v0));
             let closest = r.closest_point(point);
             let diff = (point-closest).magnitude();
             prop_assert!(diff < DELTA, "diff = {}", diff);
         }
 
         #[test]
-        fn closest_in_front(orig in st_vec3(-1000f64..1000f64),
-                            point in st_vec3(-1000f64..1000f64),
+        fn closest_in_front(orig in arb_point(-1000f64..1000f64),
+                            point in arb_point(-1000f64..1000f64),
                             scale in 0f64..100f64) {
             // point lies on the line that contains r: Ray
             let r: Ray<f64> = Ray::new(orig, (point - orig) * scale);
@@ -78,8 +85,8 @@ pub mod tests {
         }
 
         #[test]
-        fn closest_behind(orig in st_vec3(-1000f64..1000f64),
-                          point in st_vec3(-1000f64..1000f64),
+        fn closest_behind(orig in arb_point(-1000f64..1000f64),
+                          point in arb_point(-1000f64..1000f64),
                           scale in -1000f64..0f64) {
             // closest point must be at the start of the ray
             let r: Ray<f64> = Ray::new(orig, (point - orig) * scale);

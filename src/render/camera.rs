@@ -1,10 +1,10 @@
 use super::ray::Ray;
-use na::{RealField, Rotation3, Scalar, Vector3};
+use na::{Point3, RealField, Rotation3, Scalar, Vector3};
 
 #[derive(Debug)]
 pub struct Camera<T: Scalar> {
     // position of the camera
-    position: Vector3<T>,
+    position: Point3<T>,
     // (where it is looking at)
     orientation: Rotation3<T>,
     width: T,
@@ -14,7 +14,7 @@ pub struct Camera<T: Scalar> {
 
 impl<T: Scalar> Camera<T> {
     pub fn new(
-        position: Vector3<T>,
+        position: Point3<T>,
         orientation: Rotation3<T>,
         width: T,
         height: T,
@@ -32,8 +32,8 @@ impl<T: Scalar> Camera<T> {
 
 impl<T: RealField> Camera<T> {
     pub fn look_at(
-        position: Vector3<T>,
-        at_point: Vector3<T>,
+        position: Point3<T>,
+        at_point: Point3<T>,
         up: Vector3<T>,
         width: T,
         height: T,
@@ -59,16 +59,15 @@ impl Camera<f64> {
             (y - 0.5) * self.height,
             0.0,
         ));
-        let point = off_set + self.position;
+        let point = self.position + off_set;
 
         // focal_point lies behind the camera plane, used to determine the ray direction.
         let half_fov = self.fov / 2.0;
         let focal_distance = self.width / (2.0 * half_fov.tan());
-        let focal_point = self
-            .orientation
+        let focal_point = self.position +
+            self.orientation
             .transform_vector(&Vector3::new(0.0, 0.0, -1.0))
-            * focal_distance
-            + self.position;
+            * focal_distance;
         Ray::new(point, point - focal_point)
     }
 }
@@ -77,17 +76,17 @@ impl Camera<f64> {
 mod tests {
     use super::*;
     use crate::render::plane::*;
-    use crate::render::ray::tests::st_vec3;
+    use crate::render::ray::tests::*;
     use approx::abs_diff_eq;
     use proptest::prelude::*;
     use std::f64::consts::PI;
 
     #[test]
     fn center_point_at_position() {
-        let position = Vector3::new(0.0, 0.0, 0.0);
+        let position = Point3::new(0.0, 0.0, 0.0);
         let cam: Camera<f64> = Camera::look_at(
             position,
-            Vector3::new(0.0, 0.0, 1.0),
+            Point3::new(0.0, 0.0, 1.0),
             Vector3::new(0.0, 1.0, 0.0),
             1.0,
             1.0,
@@ -115,7 +114,7 @@ mod tests {
     prop_compose! {
 
         fn arb_camera()
-            (pos in st_vec3(-100.0f64..100.0f64),
+            (pos in arb_point(-100.0f64..100.0f64),
              orientation in arb_basis3(),
              width in 1.0f64..100.0,
              height in 1.0f64..100.0) -> Camera<f64>
@@ -126,8 +125,8 @@ mod tests {
 
     proptest! {
         #[test]
-        fn looks_at_point(position in st_vec3(-100.0f64..100.0),
-                          target in st_vec3(-100.0f64..100.0)) {
+        fn looks_at_point(position in arb_point(-100.0f64..100.0),
+                          target in arb_point(-100.0f64..100.0)) {
             prop_assume!((position - target).magnitude_squared() > 0.0001);
             let cam = Camera::look_at(position, target, Vector3::y(), 1.0, 1.0, PI/2.0);
             let center_ray = cam.ray_at(0.5, 0.5);

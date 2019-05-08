@@ -5,7 +5,7 @@ use super::renderable::*;
 use super::triangle::Triangle;
 use super::ray::Ray;
 use super::shape::Shape;
-use na::{Scalar, Vector3};
+use na::{Point3, Scalar, Vector3};
 use obj::{IndexTuple, Obj, SimplePolygon};
 use std::borrow::Borrow;
 use std::cmp::Ordering;
@@ -81,7 +81,7 @@ impl Scene<f64> {
 
         // hard coded lights
         let white = Rgb::new(1.0, 1.0, 1.0);
-        let light: PointLight<f64> = PointLight { position: Vector3::new(5.0, 5.0, 1.0), color: white};
+        let light: PointLight<f64> = PointLight { position: Point3::new(5.0, 5.0, 1.0), color: white};
         scene.lights.push(light);
 
         Ok(scene)
