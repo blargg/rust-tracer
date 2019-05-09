@@ -1,6 +1,6 @@
 use super::ray;
 use super::shape::*;
-use na::{RealField, Scalar, Vector3, Point3};
+use na::{Point3, RealField, Scalar, Vector3};
 use num::Zero;
 use std::cmp::PartialOrd;
 
@@ -18,7 +18,10 @@ impl<T: Scalar + Zero + PartialOrd> Sphere<T> {
         } else {
             r = T::zero();
         }
-        Sphere { center:center, radius: r }
+        Sphere {
+            center: center,
+            radius: r,
+        }
     }
 }
 
@@ -86,7 +89,8 @@ mod tests {
             radius: 5.0,
         };;
         let r: Ray<f32> = Ray::new_normalize(Point3::origin(), Vector3::new(1.0, 0.0, 0.0));
-        let r2: Ray<f32> = Ray::new_normalize(Point3::new(100.0, 0.0, 0.0), Vector3::new(1.0, 0.0, 0.0));
+        let r2: Ray<f32> =
+            Ray::new_normalize(Point3::new(100.0, 0.0, 0.0), Vector3::new(1.0, 0.0, 0.0));
 
         assert!(s.intersection(&r).is_some());
         assert!(s.intersection(&r2).is_none());

@@ -64,10 +64,11 @@ impl Camera<f64> {
         // focal_point lies behind the camera plane, used to determine the ray direction.
         let half_fov = self.fov / 2.0;
         let focal_distance = self.width / (2.0 * half_fov.tan());
-        let focal_point = self.position +
-            self.orientation
-            .transform_vector(&Vector3::new(0.0, 0.0, -1.0))
-            * focal_distance;
+        let focal_point = self.position
+            + self
+                .orientation
+                .transform_vector(&Vector3::new(0.0, 0.0, -1.0))
+                * focal_distance;
         Ray::new_normalize(point, point - focal_point)
     }
 }

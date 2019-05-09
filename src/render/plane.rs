@@ -17,7 +17,8 @@ impl<T: RealField> Plane<T> {
     }
 
     pub fn distance_to(&self, point: Point3<T>) -> T {
-        let t = (-self.dist + -self.normal.dot(&(point - Point3::origin()))) / self.normal.magnitude_squared();
+        let t = (-self.dist + -self.normal.dot(&(point - Point3::origin())))
+            / self.normal.magnitude_squared();
         (self.normal * t).magnitude()
     }
 }

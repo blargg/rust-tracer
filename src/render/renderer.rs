@@ -3,8 +3,8 @@ use super::color;
 use super::material::BSDF;
 use super::ray::Ray;
 use super::renderable::Renderable;
-use super::shape::DiffGeom;
 use super::scene::*;
+use super::shape::DiffGeom;
 use image::{ImageBuffer, Pixel, Rgb};
 use num::ToPrimitive;
 
@@ -38,15 +38,24 @@ fn radiance(ray: Ray<f64>, scene: &Scene<f64>) -> color::Rgb<f64> {
             let diff_geom = DiffGeom::new(isct_pt, norm);
             let bsdf = renderable.get_bsdf(&diff_geom);
             // TODO iterate over all lights
-            let reflect = bsdf.bsdf(&(ray.direction.into_inner() * -1.0), &norm, &(scene.lights[0].position - isct_pt));
+            let reflect = bsdf.bsdf(
+                &(ray.direction.into_inner() * -1.0),
+                &norm,
+                &(scene.lights[0].position - isct_pt),
+            );
             scene.lights[0].color.clone() * reflect
-        },
+        }
     }
 }
 
 /// Converts a light spectrum to a pixel color.
 fn spectrum_to_pixel_color(spec: color::Rgb<f64>) -> image::Rgb<u8> {
-    Rgb::from_channels(clamp_255(spec.red), clamp_255(spec.green), clamp_255(spec.blue), 255u8)
+    Rgb::from_channels(
+        clamp_255(spec.red),
+        clamp_255(spec.green),
+        clamp_255(spec.blue),
+        255u8,
+    )
 }
 
 /// Clamps on the range 0.0 to 1.0, then converts to u8.

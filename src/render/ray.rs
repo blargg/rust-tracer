@@ -1,5 +1,5 @@
-use na::*;
 use crate::vector::*;
+use na::*;
 
 #[derive(Debug)]
 pub struct Ray<T: Scalar> {
@@ -9,10 +9,7 @@ pub struct Ray<T: Scalar> {
 
 impl<T: Scalar> Ray<T> {
     pub fn new(origin: Point3<T>, direction: UnitVec3<T>) -> Ray<T> {
-        Ray {
-            origin,
-            direction,
-        }
+        Ray { origin, direction }
     }
 }
 
@@ -55,8 +52,8 @@ pub mod tests {
     }
 
     pub fn arb_point<N>(st: impl Strategy<Value = N> + Clone) -> impl Strategy<Value = Point3<N>>
-        where
-            N: Arbitrary + Scalar,
+    where
+        N: Arbitrary + Scalar,
     {
         st_vec3(st).prop_map(Point3::from)
     }

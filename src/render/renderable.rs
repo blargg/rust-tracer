@@ -44,13 +44,13 @@ impl<S: Shape, M: Material<NumTy = S::NumTy>> Renderable for ShapeMat<S, M> {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
-    use super::super::triangle::Triangle;
-    use crate::number::*;
     use super::super::material::{Lambert, UniformMaterial};
+    use super::super::triangle::Triangle;
+    use super::*;
+    use crate::number::*;
 
     fn shapemat_is_renderable() {
-        fn is_renderable<R: Renderable>() { };
+        fn is_renderable<R: Renderable>() {};
         is_renderable::<ShapeMat<Triangle<f64>, UniformMaterial<Lambert<f64>>>>();
     }
 
@@ -60,7 +60,7 @@ mod tests {
     // }
 
     fn uniform_is_material() {
-        fn is_material<M: Material>() { };
+        fn is_material<M: Material>() {};
         is_material::<UniformMaterial<Lambert<f64>>>();
     }
 }

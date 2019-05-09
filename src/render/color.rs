@@ -29,6 +29,6 @@ impl<T: Mul<T, Output = T>> Mul<Rgb<T>> for Rgb<T> {
             self.red * rhs.red,
             self.green * rhs.green,
             self.blue * rhs.blue,
-            )
+        )
     }
 }
