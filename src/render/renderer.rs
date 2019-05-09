@@ -2,7 +2,7 @@ use super::camera::Camera;
 use super::color;
 use super::material::BSDF;
 use super::ray::Ray;
-use super::renderable::Renderable;
+use super::renderable::*;
 use super::scene::*;
 use super::shape::DiffGeom;
 use image::{ImageBuffer, Pixel, Rgb};

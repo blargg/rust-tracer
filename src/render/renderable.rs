@@ -1,18 +1,11 @@
-use super::material::Material;
+pub use super::material::Material;
 use super::ray::Ray;
-use super::shape::{DiffGeom, Shape};
-use na::{Point3, Scalar, Vector3};
+pub use super::shape::{DiffGeom, Shape};
+use na::{Point3, Vector3};
 
 /// This trait defines what the requirements to be renderable.
 /// This is essentially a combination of the `Shape` and `Material` traits
-// TODO reimplement to establish connection to shape and material
-pub trait Renderable {
-    type NumTy: Scalar;
-    type BSDF_fn;
-    fn intersection(&self, ray: &Ray<Self::NumTy>) -> Option<Self::NumTy>;
-    fn normal(&self, point: &Point3<Self::NumTy>) -> Vector3<Self::NumTy>;
-    fn get_bsdf(&self, g: &DiffGeom<Self::NumTy>) -> Self::BSDF_fn;
-}
+pub trait Renderable: Shape + Material<NumTy = <Self as Shape>::NumTy> { }
 
 pub struct ShapeMat<S, M> {
     shape: S,
@@ -25,9 +18,8 @@ impl<S, M> ShapeMat<S, M> {
     }
 }
 
-impl<S: Shape, M: Material<NumTy = S::NumTy>> Renderable for ShapeMat<S, M> {
+impl<S: Shape, M> Shape for ShapeMat<S, M> {
     type NumTy = S::NumTy;
-    type BSDF_fn = M::BSDF_fn;
 
     fn intersection(&self, ray: &Ray<Self::NumTy>) -> Option<Self::NumTy> {
         self.shape.intersection(ray)
@@ -36,11 +28,22 @@ impl<S: Shape, M: Material<NumTy = S::NumTy>> Renderable for ShapeMat<S, M> {
     fn normal(&self, point: &Point3<Self::NumTy>) -> Vector3<Self::NumTy> {
         self.shape.normal(point)
     }
+}
+
+impl<S: Shape, M: Material<NumTy = <Self as Shape>::NumTy>> Material for ShapeMat<S, M> {
+    type NumTy = <Self as Shape>::NumTy;
+    type BSDF_fn = M::BSDF_fn;
 
     fn get_bsdf(&self, g: &DiffGeom<Self::NumTy>) -> Self::BSDF_fn {
         self.material.get_bsdf(g)
     }
 }
+
+impl<S, M> Renderable for ShapeMat<S, M>
+where
+    S: Shape,
+    M: Material<NumTy = <Self as Shape>::NumTy>,
+{}
 
 #[cfg(test)]
 mod tests {
@@ -53,11 +56,6 @@ mod tests {
         fn is_renderable<R: Renderable>() {};
         is_renderable::<ShapeMat<Triangle<f64>, UniformMaterial<Lambert<f64>>>>();
     }
-
-    // fn shapemat_ref_is_renderable() {
-    //     fn is_renderable<R: Renderable>() { };
-    //     is_renderable::<&ShapeMat<Triangle<f64>, UniformMaterial<Lambert<f64>>>>();
-    // }
 
     fn uniform_is_material() {
         fn is_material<M: Material>() {};

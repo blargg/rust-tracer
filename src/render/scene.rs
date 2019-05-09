@@ -44,7 +44,7 @@ impl<N: RealField + From<f32>> Scene<N> {
     }
 }
 
-fn order_by_closest<S: Renderable, T: PartialOrd>(
+fn order_by_closest<S, T: PartialOrd>(
     (_, t1): &(&S, Option<T>),
     (_, t2): &(&S, Option<T>),
 ) -> Ordering {
