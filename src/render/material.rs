@@ -1,7 +1,6 @@
 use super::color::Rgb;
 use super::shape::DiffGeom;
-use crate::number::*;
-use na::{Scalar, Vector3};
+use na::{RealField, Scalar, Vector3};
 
 // Defines the type of scattering functions used for lighting materials.
 // Defines how light is reflected by the surface for queried light and view vectors
@@ -41,7 +40,7 @@ impl<T> Lambert<T> {
     }
 }
 
-impl<T: GenFloat> BSDF for Lambert<T> {
+impl<T: RealField> BSDF for Lambert<T> {
     type NumTy = T;
     fn bsdf(&self, _view: &Vector3<Self::NumTy>, normal: &Vector3<Self::NumTy>, light: &Vector3<Self::NumTy>) -> Rgb<Self::NumTy> {
         let cos = normal.dot(light) / (normal.magnitude() * light.magnitude());

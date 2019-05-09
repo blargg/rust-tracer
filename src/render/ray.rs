@@ -1,4 +1,3 @@
-use crate::number::*;
 use na::*;
 use crate::vector::*;
 
@@ -17,7 +16,7 @@ impl<T: Scalar> Ray<T> {
     }
 }
 
-impl<T: GenFloat> Ray<T> {
+impl<T: RealField> Ray<T> {
     pub fn new_normalize(origin: Point3<T>, direction: Vector3<T>) -> Ray<T> {
         Ray {
             origin,
@@ -62,7 +61,7 @@ pub mod tests {
         st_vec3(st).prop_map(Point3::from)
     }
 
-    pub fn arb_ray<T: GenFloat>(
+    pub fn arb_ray<T: RealField>(
         orig_st: impl Strategy<Value = T> + Clone,
         dir_st: impl Strategy<Value = T> + Clone,
     ) -> impl Strategy<Value = Ray<T>>

@@ -1,7 +1,6 @@
 use super::ray;
 use super::shape::*;
-use crate::number::*;
-use na::{Scalar, Vector3, Point3};
+use na::{RealField, Scalar, Vector3, Point3};
 use num::Zero;
 use std::cmp::PartialOrd;
 
@@ -23,7 +22,7 @@ impl<T: Scalar + Zero + PartialOrd> Sphere<T> {
     }
 }
 
-impl<N: GenFloat> Shape for Sphere<N> {
+impl<N: RealField> Shape for Sphere<N> {
     type NumTy = N;
 
     fn intersection(&self, ray: &ray::Ray<N>) -> Option<N> {

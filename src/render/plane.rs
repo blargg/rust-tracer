@@ -1,5 +1,4 @@
-use crate::number::*;
-use na::{Point3, Scalar, Vector3};
+use na::{Point3, RealField, Scalar, Vector3};
 
 pub struct Plane<T: Scalar> {
     normal: Vector3<T>,
@@ -12,7 +11,7 @@ impl<T: Scalar> Plane<T> {
     }
 }
 
-impl<T: GenFloat> Plane<T> {
+impl<T: RealField> Plane<T> {
     pub fn new_at_point(position: Point3<T>, normal: Vector3<T>) -> Plane<T> {
         Plane::new(normal, -normal.dot(&(position - Point3::origin())))
     }

@@ -1,7 +1,7 @@
 use super::ray;
 use super::shape::*;
 use crate::number;
-use alga::general::Ring;
+use alga::general::{Ring, RealField};
 use na::{Point3, Scalar, Vector3};
 
 #[derive(Debug)]
@@ -32,34 +32,34 @@ impl<T: Scalar + Ring> Triangle<T> {
 }
 
 // TODO generalize to GenFloat
-impl Shape for Triangle<f64> {
-    type NumTy = f64;
-    fn intersection(&self, ray: &ray::Ray<f64>) -> Option<f64> {
-        let e1: Vector3<f64> = self.v2 - self.v1;
-        let e2: Vector3<f64> = self.v3 - self.v1;
+impl<N: RealField + From<f64>> Shape for Triangle<N> {
+    type NumTy = N;
+    fn intersection(&self, ray: &ray::Ray<N>) -> Option<N> {
+        let e1: Vector3<N> = self.v2 - self.v1;
+        let e2: Vector3<N> = self.v3 - self.v1;
         let s1 = ray.direction.cross(&e2);
         let divisor = s1.dot(&e1);
-        if divisor.abs() < number::EPSILON {
+        if divisor.abs() < N::from(number::EPSILON) {
             return None;
         }
 
-        let inv_div = 1.0 / divisor;
-        let s: Vector3<f64> = Point3::from(ray.origin) - self.v1;
+        let inv_div = N::one() / divisor;
+        let s: Vector3<N> = Point3::from(ray.origin) - self.v1;
         // b1 of the barycentric coordinates
-        let b1: f64 = s1.dot(&s) * inv_div;
+        let b1: N = s1.dot(&s) * inv_div;
 
-        if b1 < 0.0 || b1 > 1.0 {
+        if b1 < N::zero() || b1 > N::one() {
             return None; // lies outside of the triangle
         }
 
         let s2 = s.cross(&e1);
         let b2 = ray.direction.dot(&s2) * inv_div;
-        if b2 < 0.0 || b1 + b2 > 1.0 {
+        if b2 < N::zero() || b1 + b2 > N::one() {
             return None;
         }
 
         let t = e2.dot(&s2) * inv_div;
-        if t < 0.0 {
+        if t < N::zero() {
             None
         } else {
             Some(t)
