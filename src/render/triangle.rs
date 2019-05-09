@@ -31,15 +31,14 @@ impl<T: Scalar + Ring> Triangle<T> {
     }
 }
 
-// TODO generalize to GenFloat
-impl<N: RealField + From<f64>> Shape for Triangle<N> {
+impl<N: RealField + From<f32>> Shape for Triangle<N> {
     type NumTy = N;
     fn intersection(&self, ray: &ray::Ray<N>) -> Option<N> {
         let e1: Vector3<N> = self.v2 - self.v1;
         let e2: Vector3<N> = self.v3 - self.v1;
         let s1 = ray.direction.cross(&e2);
         let divisor = s1.dot(&e1);
-        if divisor.abs() < N::from(number::EPSILON) {
+        if divisor.abs() < N::from(number::EPSILON_32) {
             return None;
         }
 
@@ -93,7 +92,7 @@ mod tests {
     fn traingle_is_shape() {
         fn is_shape<T: Shape>() {}
         is_shape::<Triangle<f64>>();
-        // is_shape::<Triangle<f32>>(); // TODO
+        is_shape::<Triangle<f32>>();
     }
 
     #[test]
