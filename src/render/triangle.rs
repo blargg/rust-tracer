@@ -1,3 +1,4 @@
+use super::plane::Plane;
 use super::ray;
 use super::shape::*;
 use crate::number;
@@ -125,11 +126,9 @@ mod tests {
                 None => prop_assume!(false), // throw out non-intersecting cases
                 Some (t) => {
                     let int_point = ray.at_time(t);
-                    let n = tri.true_normal();
-                    // TODO rewrite to use Plane
-                    let d_intersection = n.dot(&(int_point - Point3::origin()));
-                    let d_actual = n.dot(&(tri.v1 - Point3::origin()));
-                    prop_assert!((d_intersection - d_actual).abs() < 0.0001)
+                    let plane_of_triangle = Plane::new_at_point(tri.v1, tri.true_normal());
+                    let dist = plane_of_triangle.distance_to(int_point);
+                    prop_assert!(dist.abs() < 0.0001)
                 },
             }
         }
