@@ -87,21 +87,21 @@ impl Scene<f64> {
     }
 }
 
-fn get_point(obj: &Obj<SimplePolygon>, point_index: IndexTuple) -> Vector3<f64> {
+fn get_point<N: Scalar + From<f32>>(obj: &Obj<SimplePolygon>, point_index: IndexTuple) -> Vector3<N> {
     let IndexTuple(pi, _, _) = point_index;
     let point = obj.position[pi];
 
     Vector3::new(
-        f64::from(point[0]),
-        f64::from(point[1]),
-        f64::from(point[2]),
+        N::from(point[0]),
+        N::from(point[1]),
+        N::from(point[2]),
     )
 }
 
-fn to_triangle(
+fn to_triangle<N: Scalar + From<f32>>(
     obj: &Obj<SimplePolygon>,
     poly: &SimplePolygon,
-) -> Result<Triangle<f64>, SceneLoadError> {
+) -> Result<Triangle<N>, SceneLoadError> {
     if poly.len() != 3 {
         return Err(SceneLoadError::SceneContainsGeneralPolyError);
     }
