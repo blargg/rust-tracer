@@ -4,7 +4,7 @@ use super::material::*;
 use super::renderable::*;
 use super::triangle::Triangle;
 use super::ray::Ray;
-use super::shape::Shape;
+use alga::general::RealField;
 use na::{Point3, Scalar, Vector3};
 use obj::{IndexTuple, Obj, SimplePolygon};
 use std::borrow::Borrow;
@@ -33,10 +33,9 @@ impl<T: Scalar> Scene<T> {
     }
 }
 
-// TODO generalize to GenFloat
-impl Scene<f64> {
+impl<N: RealField + From<f32>> Scene<N> {
 
-    pub fn intersects_renderable(&self, ray: &Ray<f64>) -> Option<(&MatTri<f64>, f64)> {
+    pub fn intersects_renderable(&self, ray: &Ray<N>) -> Option<(&MatTri<N>, N)> {
         let shape_inter = self.objects.iter().map(|s| (s, s.intersection(ray)));
         let closest = shape_inter.min_by(closest_to_ray(ray));
         closest.and_then(|(s, inter)| {
@@ -48,8 +47,8 @@ impl Scene<f64> {
     }
 }
 
-// TODO check if this works
-fn closest_to_ray<S: Renderable, T:PartialOrd>(ray: &Ray<S::NumTy>) -> fn (&(&S, Option<T>), &(&S, Option<T>)) -> Ordering {
+// TODO remove ray
+fn closest_to_ray<S: Renderable, T:PartialOrd>(_ray: &Ray<S::NumTy>) -> fn (&(&S, Option<T>), &(&S, Option<T>)) -> Ordering {
     |(_, t1), (_, t2)| {
         match (t1, t2) {
             (None, _) => Ordering::Greater,
