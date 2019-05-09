@@ -36,7 +36,7 @@ impl<T: Scalar> Scene<T> {
 impl<N: RealField + From<f32>> Scene<N> {
     pub fn intersects_renderable(&self, ray: &Ray<N>) -> Option<(&MatTri<N>, N)> {
         let shape_inter = self.objects.iter().map(|s| (s, s.intersection(ray)));
-        let closest = shape_inter.min_by(closest_to_ray(ray));
+        let closest = shape_inter.min_by(order_by_closest);
         closest.and_then(|(s, inter)| match inter {
             None => None,
             Some(i) => Some((s, i)),
@@ -44,11 +44,11 @@ impl<N: RealField + From<f32>> Scene<N> {
     }
 }
 
-// TODO remove ray
-fn closest_to_ray<S: Renderable, T: PartialOrd>(
-    _ray: &Ray<S::NumTy>,
-) -> fn(&(&S, Option<T>), &(&S, Option<T>)) -> Ordering {
-    |(_, t1), (_, t2)| match (t1, t2) {
+fn order_by_closest<S: Renderable, T: PartialOrd>(
+    (_, t1): &(&S, Option<T>),
+    (_, t2): &(&S, Option<T>),
+) -> Ordering {
+    match (t1, t2) {
         (None, _) => Ordering::Greater,
         (_, None) => Ordering::Less,
         (Some(x), Some(y)) => x.partial_cmp(y).unwrap_or(Ordering::Equal),
