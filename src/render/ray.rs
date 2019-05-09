@@ -81,10 +81,9 @@ pub mod tests {
         #[test]
         fn closest_in_front(orig in arb_point(-1000f64..1000f64),
                             point in arb_point(-1000f64..1000f64),
-                            scale in 0f64..100f64) {
+                           ) {
             // point lies on the line that contains r: Ray
-            // TODO, scale can only really be 1 or -1. Everything is normalized to unit length.
-            let r: Ray<f64> = Ray::new_normalize(orig, (point - orig) * scale);
+            let r: Ray<f64> = Ray::new_normalize(orig, point - orig);
             let closest = r.closest_point(point);
             prop_assert!((point - closest).magnitude() < DELTA);
         }
