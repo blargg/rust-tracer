@@ -40,7 +40,7 @@ impl<T: RealField> Camera<T> {
         fov: T,
     ) -> Camera<T> {
         let view_direction = at_point - position;
-        let orientation = Rotation3::look_at_lh(&view_direction, &up).inverse(); // TODO check
+        let orientation = Rotation3::look_at_lh(&view_direction, &up).inverse();
         Camera::new(position, orientation, width, height, fov)
     }
 }
