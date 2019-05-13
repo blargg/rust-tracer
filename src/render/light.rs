@@ -1,8 +1,8 @@
 use na::{Point3, Scalar};
 
-use super::color::*;
+use super::spectrum::*;
 
 pub struct PointLight<T: Scalar> {
     pub position: Point3<T>,
-    pub color: Rgb<T>,
+    pub color: Spec<T>,
 }

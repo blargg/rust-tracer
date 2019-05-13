@@ -1,5 +1,5 @@
 use super::camera::Camera;
-use super::color;
+use super::spectrum::Spec;
 use super::material::BSDF;
 use super::ray::Ray;
 use super::renderable::*;
@@ -28,10 +28,10 @@ fn render_ray(ray: Ray<f64>, scene: &Scene<f64>) -> Rgb<u8> {
 }
 
 /// Calculates the radiance of the light moving into the ray origin from the scene.
-fn radiance(ray: Ray<f64>, scene: &Scene<f64>) -> color::Rgb<f64> {
+fn radiance(ray: Ray<f64>, scene: &Scene<f64>) -> Spec<f64> {
     let intersection = scene.intersects_renderable(&ray);
     match intersection {
-        None => color::Rgb::new(0.0, 0.0, 0.0),
+        None => Spec::new(0.0, 0.0, 0.0),
         Some((renderable, t)) => {
             let isct_pt = ray.at_time(t);
             let norm = renderable.normal(&isct_pt);
@@ -49,7 +49,7 @@ fn radiance(ray: Ray<f64>, scene: &Scene<f64>) -> color::Rgb<f64> {
 }
 
 /// Converts a light spectrum to a pixel color.
-fn spectrum_to_pixel_color(spec: color::Rgb<f64>) -> image::Rgb<u8> {
+fn spectrum_to_pixel_color(spec: Spec<f64>) -> image::Rgb<u8> {
     Rgb::from_channels(
         clamp_255(spec.red),
         clamp_255(spec.green),
@@ -64,7 +64,3 @@ fn spectrum_to_pixel_color(spec: color::Rgb<f64>) -> image::Rgb<u8> {
 fn clamp_255(x: f64) -> u8 {
     (x.min(1.0).max(0.0) * 255.0).to_u8().unwrap_or(0u8)
 }
-
-// fn lighting(r: Renderable, view: Vector3<f64>, light: Vecter3<f64>) -> Rgb<f64> {
-//
-// }

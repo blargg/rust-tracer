@@ -1,4 +1,4 @@
-use super::color::Rgb;
+use super::spectrum::Spec;
 use super::shape::DiffGeom;
 use na::{RealField, Scalar, Vector3};
 
@@ -22,7 +22,7 @@ pub trait BSDF {
         view: &Vector3<Self::NumTy>,
         normal: &Vector3<Self::NumTy>,
         light: &Vector3<Self::NumTy>,
-    ) -> Rgb<Self::NumTy>;
+    ) -> Spec<Self::NumTy>;
 }
 
 pub trait Material {
@@ -36,13 +36,13 @@ pub trait Material {
 
 #[derive(Clone)]
 pub struct Lambert<T> {
-    color: Rgb<T>,
+    color: Spec<T>,
 }
 
 impl<T> Lambert<T> {
     pub fn new(red: T, green: T, blue: T) -> Lambert<T> {
         Lambert {
-            color: Rgb::new(red, green, blue),
+            color: Spec::new(red, green, blue),
         }
     }
 }
@@ -54,7 +54,7 @@ impl<T: RealField> BSDF for Lambert<T> {
         _view: &Vector3<Self::NumTy>,
         normal: &Vector3<Self::NumTy>,
         light: &Vector3<Self::NumTy>,
-    ) -> Rgb<Self::NumTy> {
+    ) -> Spec<Self::NumTy> {
         let cos = normal.dot(light) / (normal.magnitude() * light.magnitude());
         self.color.clone() * cos.max(T::zero())
     }
